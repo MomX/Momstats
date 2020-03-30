@@ -19,7 +19,10 @@ Imports:
     magrittr,
     Momocs2,
     MASS,
-    stats
+    stats,
+    vegan,
+    ggplot2,
+    tibble
 Remotes:
     MomX/Momocs2
 Suggests: 
