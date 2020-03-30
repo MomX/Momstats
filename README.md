@@ -7,6 +7,8 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Travis build
+status](https://travis-ci.com/MomX/Momstats.svg?branch=master)](https://travis-ci.com/MomX/Momstats)
 <!-- badges: end -->
 
 The goal of Momstats is to provide statistical methods, mostly
