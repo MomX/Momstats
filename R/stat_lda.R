@@ -1,3 +1,1 @@
-# which_constant
-# which_collinear
-#
+# stat_lda

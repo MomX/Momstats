@@ -18,7 +18,8 @@ RoxygenNote: 7.1.0
 Imports: 
     magrittr,
     Momocs2,
-    MASS
+    MASS,
+    stats
 Remotes:
     MomX/Momocs2
 Suggests: 
