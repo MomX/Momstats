@@ -9,6 +9,17 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Travis build
 status](https://travis-ci.com/MomX/Momstats.svg?branch=master)](https://travis-ci.com/MomX/Momstats)
+[![Codecov test
+coverage](https://codecov.io/gh/MomX/Momstats/branch/master/graph/badge.svg)](https://codecov.io/gh/MomX/Momstats?branch=master)
+[![Code
+size](https://img.shields.io/github/languages/code-size/MomX/Momocs.svg)](https://github.com/MomX/Momstats)
+[![Last
+commit](https://img.shields.io/github/last-commit/MomX/Momstats.svg)](https://github.com/MomX/Momstats/commits/master)
+<!-- uncomment when on CRAN
+[![CRAN status](https://www.r-pkg.org/badges/version/Momstats)](https://CRAN.R-project.org/package=Momstats)
+![CRAN downloads last month](http://cranlogs.r-pkg.org/badges/Momstats) ![CRAN downloads grand total](http://cranlogs.r-pkg.org/badges/grand-total/Momstats)
+-->
+
 <!-- badges: end -->
 
 The goal of Momstats is to provide statistical methods, mostly

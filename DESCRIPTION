@@ -26,7 +26,8 @@ Imports:
     rlang (>= 0.1.2),
     tidyselect,
     forcats,
-    dplyr
+    dplyr,
+    cli
 Remotes:
     MomX/Momocs2
 Suggests: 

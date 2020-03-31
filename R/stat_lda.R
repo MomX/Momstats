@@ -52,7 +52,7 @@ stat_lda_prepare <- function(x,
   # f first, coe then, drop others
   # f will be handled positionnally after (1st col)
   # so that it's simple and does not require colname handling
-  df <- dplyr::select(x, !!f_enquo, !!!coe_enquo)
+  df <- dplyr::select(x, !!f_enquo, !!coe_enquo)
 
   # Remove NAs ----------------
   df_NA <- is.na(df)
@@ -60,7 +60,7 @@ stat_lda_prepare <- function(x,
   rows_NA <- rowSums(df_NA)
 
   if (any(df_NA)){
-    cat("* dropping NAs\n") # do we need to refine with where (?)
+    .msg_info("[stat_lda_prepare] dropping NAs") # do we need to refine with where (?)
     df <- stats::na.omit(df)
   }
 
@@ -76,7 +76,9 @@ stat_lda_prepare <- function(x,
     dplyr::select_if(~.x < constant_below_var) %>% names()
   #.msg here
   if (length(cols_constant)>0){
-    cat("* ", cols_constant, " were removed (var <", constant_below_var, ")\n")
+    paste0("[stat_lda_prepare] ",
+           paste(cols_constant, collapse=", "),
+           " were removed (var <", constant_below_var, ")") %>% .msg_info()
     dfn <- dfn %>% dplyr::select(-cols_constant)
   }
 
@@ -86,7 +88,9 @@ stat_lda_prepare <- function(x,
   cols_collinear <- (cormat > collinear_above_cor) %>% apply(1, any, na.rm=TRUE) %>% which() %>% names()
   #.msg here
   if (length(cols_collinear)>0){
-    cat("* ", cols_collinear, " were removed (cor > ", collinear_above_cor, ")\n")
+    paste0("[stat_lda_prepare] ",
+           paste(cols_collinear, collapse=", "),
+           " were removed (cor > ", collinear_above_cor, ")") %>% .msg_info()
     dfn <- dfn %>% dplyr::select(-tidyselect::all_of(cols_collinear))
   }
 
@@ -102,32 +106,6 @@ stat_lda_prepare <- function(x,
        cols_NA           = cols_NA,
        rows_NA           = rows_NA)
 }
-
-# for tests ----
-
-# a nice tibble with many problems -------
-# starting with tests
-# set.seed(2329)
-# k=100
-#
-#
-# df <- tibble::tibble(
-#   # q variables, some collinear,
-#   a=rnorm(k), b=jitter(a), c=runif(k),
-#   # now constants, collinear or not
-#   d=pi, e=jitter(d), f=3,
-#   # factors now
-#   foo1=factor("a"),
-#   foo2=sample(LETTERS[1:12], size=k, replace = TRUE) %>% factor(),
-#   foo3=sample(c("yes", "no"), size=k, replace=TRUE) %>% factor(),
-# )
-# e_NA <- df$e
-# e_NA[c(5, 12)] <- NA
-#
-# foo2_NA <- df$foo2
-# foo2_NA[c(7, 34)] <- NA
-#
-# df <- df %>% dplyr::mutate(e_NA=e_NA, foo2_NA=foo2_NA)
 
 # stat_lda0 -----------------------------------------------
 
