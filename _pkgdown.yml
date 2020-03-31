@@ -19,5 +19,12 @@ authors:
   Vincent Bonhomme:
     href: http://www.vincentbonhomme.fr
 
+reference:
+  - title: "Linear Discriminant Analysis*"
+    desc: >
+      Explore and test differences between groups
+    contents:
+      - starts_with("stat_lda")
+
 
 
