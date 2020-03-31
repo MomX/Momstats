@@ -1,3 +1,4 @@
+
 # which_constant
 .which_constant <- function(x, tol=1e-4){
   which(apply(x, 2, stats::sd) < tol)

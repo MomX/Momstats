@@ -22,14 +22,19 @@ Imports:
     stats,
     vegan,
     ggplot2,
-    tibble
+    tibble,
+    rlang (>= 0.1.2),
+    tidyselect,
+    forcats,
+    dplyr
 Remotes:
     MomX/Momocs2
 Suggests: 
     testthat,
     covr,
     rmarkdown,
-    knitr
+    knitr,
+    roxygen2
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
