@@ -7,30 +7,30 @@ test_that(".CV_tbl works", {
   expect_equal(colnames(cv), c("actual", "predicted", "n", "prop", "n_class", "prop_class", "n_total"))
 })
 
+# a nice tibble with many problems
+
+set.seed(2329)
+k=100
+
+df <- tibble::tibble(
+  # q variables, some collinear,
+  a=rnorm(k), b=jitter(a), c=runif(k),
+  # now constants, collinear or not
+  d=pi, e=jitter(d), f=3,
+  # factors now
+  foo1=factor("a"),
+  foo2=sample(LETTERS[1:12], size=k, replace = TRUE) %>% factor(),
+  foo3=sample(c("yes", "no"), size=k, replace=TRUE) %>% factor(),
+)
+e_NA <- df$e
+e_NA[c(5, 12)] <- NA
+
+foo2_NA <- df$foo2
+foo2_NA[c(7, 34)] <- NA
+
+df <- df %>% dplyr::mutate(e_NA=e_NA, foo2_NA=foo2_NA)
 
 test_that("stat_lda_prepare works", {
-  # a nice tibble with many problems
-
-  set.seed(2329)
-  k=100
-
-  df <- tibble::tibble(
-    # q variables, some collinear,
-    a=rnorm(k), b=jitter(a), c=runif(k),
-    # now constants, collinear or not
-    d=pi, e=jitter(d), f=3,
-    # factors now
-    foo1=factor("a"),
-    foo2=sample(LETTERS[1:12], size=k, replace = TRUE) %>% factor(),
-    foo3=sample(c("yes", "no"), size=k, replace=TRUE) %>% factor(),
-  )
-  e_NA <- df$e
-  e_NA[c(5, 12)] <- NA
-
-  foo2_NA <- df$foo2
-  foo2_NA[c(7, 34)] <- NA
-
-  df <- df %>% dplyr::mutate(e_NA=e_NA, foo2_NA=foo2_NA)
 
   expect_message(df_prepared <- df %>% stat_lda_prepare(foo2_NA, a:f))
   expect_is(df_prepared, "list")
@@ -50,5 +50,12 @@ test_that("stat_lda_prepare works", {
   # now it should be ok so no messaging
   expect_silent(df_prepared2 <- df_prepared$df %>% stat_lda_prepare(foo2_NA, a, c))
   expect_equal(df_prepared$df %>% dplyr::select(1, a, c), df_prepared2$df)
+})
+
+test_that("stat_lda0 works fine", {
+  df0 <- df %>% stat_lda_prepare(foo2_NA, a:f)
+  # positionally
+  lda1 <- stat_lda0(df0$coe_naked, df0$f_naked)
+  expect_is(lda1, "tbl")
 })
 

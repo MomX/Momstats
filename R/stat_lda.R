@@ -40,10 +40,10 @@
 #' @family lda
 #' @export
 stat_lda_prepare <- function(x,
-                        f,
-                        ...,
-                        constant_below_var  = 1e-5,
-                        collinear_above_cor = 1-1e-5){
+                             f,
+                             ...,
+                             constant_below_var  = 1e-5,
+                             collinear_above_cor = 1-1e-5){
   # tidyeval
   f_enquo   <- enquo(f)  ### todo: handles for formula here ??
   coe_enquo <- rlang::expr(c(...))
@@ -115,7 +115,7 @@ stat_lda_prepare <- function(x,
 #'
 #' @param x `matrix or [tibble][tibble::tibble-package] containing the explanatory variables
 #' forwarded to [MASS::lda]'s `x`
-#' @param f `factor` forwarded to [MASS::lda]'s `grouping`
+#' @param f `factor` forwarded to [MASS::lda]'s `grouping`. If missing takes first columns and remove it from x.
 #' @param full `logical` whether to prepare useful components (default to `FALSE`)
 #'
 #' @details With `full=TRUE`, it is at least 6 times slower.
@@ -123,7 +123,6 @@ stat_lda_prepare <- function(x,
 #' @family lda
 #' @export
 stat_lda0 <- function(x, f, full=FALSE){
-
   # delegate calculations to MASS
   mod <- MASS::lda(x, f)
   mod_pred <- stats::predict(mod, x)
