@@ -4,7 +4,7 @@
 .cross <- function(x){
   if (is.factor(x))
     x <- levels(x)
-  x %>% combn(2) %>% t %>% tibble::as_tibble() %>% `colnames<-`(c("pair1", "pair2"))
+  x %>% utils::combn(2) %>% t %>% tibble::as_tibble() %>% `colnames<-`(c("pair1", "pair2"))
 }
 
 #
@@ -40,11 +40,11 @@
 #' @param x [tibble][tibble::tibble-package]
 #' @param f `factor` used as right hand side in [stats::manova]'s formula
 #' @param ... columns used as left hand side in [stats::manova]'s formula
-#' @param test forwarded to [broom::tidy.manova]'s `test`. One of "Pillai" (Pillai's trace, default),
+#' @param test forwarded to `broom::tidy.manova`'s `test`. One of "Pillai" (Pillai's trace, default),
 #' "Wilks" (Wilk's lambda), "Hotelling-Lawley" (Hotelling-Lawley trace) or
 #' "Roy" (Roy's greatest root) indicating which test statistic should be used.
 #'
-#' @return see [broom::tidy.manova]'s Value section
+#' @return see **Value** section in `broom::tidy.manova`
 #' @family manova
 #' @export
 stat_manova <- function(x, f, ..., test = "Pillai"){
@@ -84,12 +84,13 @@ stat_manova_pairwise <- function(x, f, ..., test = "Pillai"){
     f_i           <- dplyr::pull(x_i, !!f_enquo) %>% forcats::fct_drop()
     n[[i]]        <- purrr::map_dbl(levels_i, ~sum(f_i==.x)) %>% `names<-`(c("pair1_n", "pair2_n"))
     tidy_res[[i]] <- stats::manova(coe_i ~ f_i) %>%
-      broom::tidy(test=test) %>% dplyr::slice(1) %>% dplyr::select(-term)
+      broom::tidy(test=test) %>% dplyr::slice(1) %>% dplyr::select(-.data$term)
   }
 
   # prepare and return this beauty
   dplyr::bind_cols(f_df,
-                   tibble::tibble(pair1_n=map_dbl(n, 1), pair2_n=map_dbl(n, 2)),
+                   tibble::tibble(pair1_n=purrr::map_dbl(n, 1),
+                                  pair2_n=purrr::map_dbl(n, 2)),
                    dplyr::bind_rows(tidy_res))
 }
 

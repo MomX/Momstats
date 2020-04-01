@@ -16,12 +16,12 @@ stat_manova_pairwise(x, f, ..., test = "Pillai")
 
 \item{...}{columns used as left hand side in \link[stats:manova]{stats::manova}'s formula}
 
-\item{test}{forwarded to \link[broom:tidy.manova]{broom::tidy.manova}'s \code{test}. One of "Pillai" (Pillai's trace, default),
+\item{test}{forwarded to \code{broom::tidy.manova}'s \code{test}. One of "Pillai" (Pillai's trace, default),
 "Wilks" (Wilk's lambda), "Hotelling-Lawley" (Hotelling-Lawley trace) or
 "Roy" (Roy's greatest root) indicating which test statistic should be used.}
 }
 \value{
-see \link[broom:tidy.manova]{broom::tidy.manova}'s Value section
+see \strong{Value} section in \code{broom::tidy.manova}
 }
 \description{
 Calculations are delegated to \link[stats:manova]{stats::manova}
