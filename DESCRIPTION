@@ -28,7 +28,8 @@ Imports:
     forcats,
     dplyr,
     cli,
-    broom
+    broom,
+    purrr
 Remotes:
     MomX/Momocs2
 Suggests: 
