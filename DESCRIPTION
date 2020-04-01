@@ -27,7 +27,8 @@ Imports:
     tidyselect,
     forcats,
     dplyr,
-    cli
+    cli,
+    broom
 Remotes:
     MomX/Momocs2
 Suggests: 
