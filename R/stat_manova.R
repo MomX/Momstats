@@ -1,10 +1,11 @@
 # stat_manova =============================================
 
 # utils ---------------------------------------------------
+# given a factor or a character, crosses all levels pairwise combinations
 .cross <- function(x){
   if (is.factor(x))
     x <- levels(x)
-  x %>% utils::combn(2) %>% t %>% tibble::as_tibble() %>% `colnames<-`(c("pair1", "pair2"))
+  x %>% utils::combn(2) %>% t %>% `colnames<-`(c("pair1", "pair2")) %>% tibble::as_tibble()
 }
 
 #
@@ -50,7 +51,16 @@
 stat_manova <- function(x, f, ..., test = "Pillai"){
   # tidyeval
   f_enquo   <- enquo(f)  ### todo: handles for formula here ??
-  coe_enquo <- rlang::expr(c(...))
+
+  if (missing(...)) {
+    coe <- coe_names(x)
+    paste0("stat_manova: working on ", paste(coe, collapse=", ")) %>% .msg_info()
+    coe_enquo <- rlang::expr(tidyselect::all_of(coe))
+  } else {
+    coe_enquo <- rlang::expr(c(...))
+  }
+
+
   coe_names <- tidyselect::eval_select(coe_enquo, x) ### ... should add to here
 
   # f first, coe then, drop others
@@ -62,6 +72,10 @@ stat_manova <- function(x, f, ..., test = "Pillai"){
 }
 
 # stat_manova(df, foo2_NA, a:e)
+
+# class(df$a) <- c("coe_list", "numeric")
+# class(df$c) <- c("coe_list", "numeric")
+# stat_manova(df, foo2_NA)
 
 #' @export
 #' @describeIn stat_manova pairwise manova for every pair of levels

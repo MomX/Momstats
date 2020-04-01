@@ -60,7 +60,7 @@ stat_lda_prepare <- function(x,
   rows_NA <- rowSums(df_NA)
 
   if (any(df_NA)){
-    .msg_info("[stat_lda_prepare] dropping NAs") # do we need to refine with where (?)
+    .msg_info("stat_lda_prepare: dropping NAs") # do we need to refine with where (?)
     df <- stats::na.omit(df)
   }
 
@@ -76,7 +76,7 @@ stat_lda_prepare <- function(x,
     dplyr::select_if(~.x < constant_below_var) %>% names()
   #.msg here
   if (length(cols_constant)>0){
-    paste0("[stat_lda_prepare] ",
+    paste0("stat_lda_prepare: ",
            paste(cols_constant, collapse=", "),
            " were removed (var <", constant_below_var, ")") %>% .msg_info()
     dfn <- dfn %>% dplyr::select(-cols_constant)
@@ -88,7 +88,7 @@ stat_lda_prepare <- function(x,
   cols_collinear <- (cormat > collinear_above_cor) %>% apply(1, any, na.rm=TRUE) %>% which() %>% names()
   #.msg here
   if (length(cols_collinear)>0){
-    paste0("[stat_lda_prepare] ",
+    paste0("stat_lda_prepare: ",
            paste(cols_collinear, collapse=", "),
            " were removed (cor > ", collinear_above_cor, ")") %>% .msg_info()
     dfn <- dfn %>% dplyr::select(-tidyselect::all_of(cols_collinear))
