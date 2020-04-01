@@ -26,5 +26,10 @@ reference:
     contents:
       - starts_with("stat_lda")
 
+  - title: "Multivariate analysis of variance*"
+    desc: >
+      Explore and test differences between groups
+    contents:
+      - starts_with("stat_manova")
 
 
