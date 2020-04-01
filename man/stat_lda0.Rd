@@ -9,7 +9,7 @@ stat_lda0(x, f, full = FALSE)
 \arguments{
 \item{x}{\verb{matrix or [tibble][tibble::tibble-package] containing the explanatory variables forwarded to [MASS::lda]'s }x`}
 
-\item{f}{\code{factor} forwarded to \link[MASS:lda]{MASS::lda}'s \code{grouping}}
+\item{f}{\code{factor} forwarded to \link[MASS:lda]{MASS::lda}'s \code{grouping}. If missing takes first columns and remove it from x.}
 
 \item{full}{\code{logical} whether to prepare useful components (default to \code{FALSE})}
 }
