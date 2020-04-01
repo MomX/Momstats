@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://momx.github.io/Momstats/index.html</loc>
+  </url>
+  <url>
+    <loc>http://momx.github.io/Momstats/reference/bot_eft.html</loc>
+  </url>
+  <url>
+    <loc>http://momx.github.io/Momstats/reference/gg_CV.html</loc>
+  </url>
+  <url>
+    <loc>http://momx.github.io/Momstats/reference/pipe.html</loc>
+  </url>
+  <url>
+    <loc>http://momx.github.io/Momstats/reference/stat_lda0.html</loc>
+  </url>
+  <url>
+    <loc>http://momx.github.io/Momstats/reference/stat_lda_prepare.html</loc>
+  </url>
+  <url>
+    <loc>http://momx.github.io/Momstats/reference/stat_manova.html</loc>
+  </url>
+  <url>
+    <loc>http://momx.github.io/Momstats/reference/tidyeval.html</loc>
+  </url>
+  <url>
+    <loc>http://momx.github.io/Momstats/articles/intro.html</loc>
+  </url>
+</urlset>
