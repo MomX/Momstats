@@ -101,7 +101,7 @@ gg_CV.default <- function(x,
   # add values if required
   if (text)
     gg <- gg + geom_text(aes(label=.data$label),
-                         colour=text_colour, size=text_size/.pt)
+                         colour=text_colour, size=text_size/.point)
 
   print(df)
   # return this beauty
