@@ -15,6 +15,17 @@
 #' bot_eft
 NULL
 
+#' A nicely problematic tibble
+#'
+#' @docType data
+#' @name dummy_df
+#' @family outlines
+#'  # todo format
+#'
+#' @examples
+#' dummy_df
+NULL
+
 # bot2 %>% efourier(6) %>%
 #   dplyr::mutate(q=rnorm(40, 5)) dplyr::select(coe, type, fake, q) %>%
 #   usethis::use_data(bot_eft, overwrite = TRUE)
