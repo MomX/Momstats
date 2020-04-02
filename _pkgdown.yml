@@ -25,6 +25,7 @@ reference:
       Explore and test differences between groups
     contents:
       - starts_with("stat_lda")
+      - gg_CV
 
   - title: "stat_manova: Multivariate analysis of variance"
     desc: >
@@ -32,4 +33,9 @@ reference:
     contents:
       - starts_with("stat_manova")
 
-
+  - title: "Datasets"
+    desc: >
+      To play with Moms
+    contents:
+      - bot_eft
+      - dummy_df
