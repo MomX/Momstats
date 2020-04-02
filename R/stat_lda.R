@@ -202,5 +202,9 @@ stat_lda0 <- function(x, f, full=FALSE){
 # stat_lda0(x, f)
 
 
-# stat_lda ------------------------------------------------
-# Wraps around x %>% stat_lda_prepare %>% stat_lda0 with benefits
+
+# print.stat_lda --------
+
+# stat_swing_lda --------
+
+
