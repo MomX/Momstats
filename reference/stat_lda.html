@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Linear discriminant analysis — stat_lda0 • Momstats</title>
+<title>Linear discriminant analysis — stat_lda • Momstats</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Linear discriminant analysis — stat_lda0" />
+<meta property="og:title" content="Linear discriminant analysis — stat_lda" />
 <meta property="og:description" content="Calculations are delegated to MASS::lda" />
 <meta property="og:image" content="http://momx.github.io/Momstats/logo.png" />
 
@@ -133,14 +133,16 @@
     <div class="page-header">
     <h1>Linear discriminant analysis</h1>
     
-    <div class="hidden name"><code>stat_lda0.Rd</code></div>
+    <div class="hidden name"><code>stat_lda.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Calculations are delegated to <a href='https://rdrr.io/pkg/MASS/man/lda.html'>MASS::lda</a></p>
     </div>
 
-    <pre class="usage"><span class='fu'>stat_lda0</span>(<span class='no'>x</span>, <span class='no'>f</span>, <span class='kw'>full</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>stat_lda0</span>(<span class='no'>x</span>, <span class='no'>f</span>, <span class='kw'>full</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
+
+<span class='fu'>stat_lda</span>(<span class='no'>x</span>, <span class='no'>f</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,16 +159,98 @@
       <th>full</th>
       <td><p><code>logical</code> whether to prepare useful components (default to <code>FALSE</code>)</p></td>
     </tr>
+    <tr>
+      <th>...</th>
+      <td><p>addtional parameters forwardes to <a href='https://rdrr.io/pkg/MASS/man/lda.html'>MASS::lda</a></p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>With <code>full=TRUE</code>, it is at least 6 times slower.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <h2 class="hasAnchor" id="functions"><a class="anchor" href="#functions"></a>Functions</h2>
 
-    <div class='dont-index'><p>Other lda: 
-<code>stat_lda_prepare()</code></p></div>
+    
+<ul>
+<li><p><code>stat_lda0</code>: Vanilla lda</p></li>
+<li><p><code>stat_lda</code>: Wrapped lda</p></li>
+</ul>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>(<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='no'>dummy_df</span> <span class='kw'>%&gt;%</span> <span class='fu'>stat_lda_prepare</span>(<span class='no'>foo2_NA</span>, <span class='no'>a</span>:<span class='no'>e</span>))</div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: dropping NAs</span></div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: d were removed (var &lt;1e-05)</span></div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: b were removed (cor &gt; 0.99999)</span></div><div class='output co'>#&gt; $df
+#&gt; # A tibble: 98 x 4
+#&gt;    foo2_NA      a      c     e
+#&gt;    &lt;fct&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
+#&gt;  1 G        0.445 0.179   3.11
+#&gt;  2 C        1.50  0.775   3.20
+#&gt;  3 D       -1.98  0.841   3.20
+#&gt;  4 F        0.125 0.287   3.19
+#&gt;  5 D       -1.41  0.974   3.12
+#&gt;  6 F       -1.07  0.680   3.13
+#&gt;  7 E        0.752 0.435   3.19
+#&gt;  8 I        0.588 0.0854  3.15
+#&gt;  9 B       -0.158 0.315   3.15
+#&gt; 10 F        1.04  0.538   3.12
+#&gt; # … with 88 more rows
+#&gt; 
+#&gt; $f_naked
+#&gt;  [1] G C D F D F E I B F D L A B K G D H A L G A D C F J H E E G F E D I G B A F
+#&gt; [39] F G I J K D B B I I K B B C F B B C D F C D I E D E I B H L C G K A J B D G
+#&gt; [77] D E H C K C H H H A H A L B H D H B E H H F
+#&gt; Levels: A B C D E F G H I J K L
+#&gt; 
+#&gt; $coe_naked
+#&gt; # A tibble: 98 x 3
+#&gt;         a      c     e
+#&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
+#&gt;  1  0.445 0.179   3.11
+#&gt;  2  1.50  0.775   3.20
+#&gt;  3 -1.98  0.841   3.20
+#&gt;  4  0.125 0.287   3.19
+#&gt;  5 -1.41  0.974   3.12
+#&gt;  6 -1.07  0.680   3.13
+#&gt;  7  0.752 0.435   3.19
+#&gt;  8  0.588 0.0854  3.15
+#&gt;  9 -0.158 0.315   3.15
+#&gt; 10  1.04  0.538   3.12
+#&gt; # … with 88 more rows
+#&gt; 
+#&gt; $cols_constant
+#&gt; [1] "d"
+#&gt; 
+#&gt; $cols_collinear
+#&gt; [1] "b"
+#&gt; 
+#&gt; $cols_NA
+#&gt; foo2_NA       a       b       c       d       e 
+#&gt;       2       0       0       0       0       0 
+#&gt; 
+#&gt; $rows_NA
+#&gt;   [1] 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+#&gt;  [38] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#&gt;  [75] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#&gt; </div><div class='input'>
+<span class='fu'>stat_lda0</span>(<span class='no'>x</span>$<span class='no'>coe_naked</span>, <span class='no'>x</span>$<span class='no'>f_naked</span>)</div><div class='output co'>#&gt; # A tibble: 98 x 4
+#&gt;    actual predicted correct posterior
+#&gt;    &lt;fct&gt;  &lt;fct&gt;     &lt;lgl&gt;       &lt;dbl&gt;
+#&gt;  1 A      B         FALSE       0.208
+#&gt;  2 A      B         FALSE       0.149
+#&gt;  3 A      D         FALSE       0.239
+#&gt;  4 A      D         FALSE       0.183
+#&gt;  5 A      D         FALSE       0.188
+#&gt;  6 A      H         FALSE       0.149
+#&gt;  7 A      H         FALSE       0.151
+#&gt;  8 B      B         TRUE        0.183
+#&gt;  9 B      B         TRUE        0.152
+#&gt; 10 B      B         TRUE        0.176
+#&gt; # … with 88 more rows</div><div class='input'>
+<span class='fu'>stat_lda</span>(<span class='no'>dummy_df</span>, <span class='no'>foo2_NA</span>, <span class='no'>a</span>:<span class='no'>e</span>)</div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: dropping NAs</span></div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: d were removed (var &lt;1e-05)</span></div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: b were removed (cor &gt; 0.99999)</span></div><div class='output co'>#&gt; </div><div class='output co'>#&gt; <span class='message'>── Linear Discriminant Analysis ────────────────────────────────────────────────</span></div><div class='output co'>#&gt; - 98 observations
+#&gt; - 3 variables
+#&gt; - 12 levels, unbalanced (N ranges from 3 to 13)
+#&gt; 
+#&gt; - Accuracy:            0.163
+#&gt; - Within classes:      min: 0.0306 (J), median: 0.0816 (C, E, G), max: 0.133 (B, D)
+#&gt; - Posterior (correct): min: 0.127, median: 0.175, max: 0.4</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
