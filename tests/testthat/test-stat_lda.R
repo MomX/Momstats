@@ -8,27 +8,7 @@ test_that(".CV_tbl works", {
 })
 
 # a nice tibble with many problems
-
-set.seed(2329)
-k=100
-
-df <- tibble::tibble(
-  # q variables, some collinear,
-  a=rnorm(k), b=jitter(a), c=runif(k),
-  # now constants, collinear or not
-  d=pi, e=jitter(d), f=3,
-  # factors now
-  foo1=factor("a"),
-  foo2=sample(LETTERS[1:12], size=k, replace = TRUE) %>% factor(),
-  foo3=sample(c("yes", "no"), size=k, replace=TRUE) %>% factor(),
-)
-e_NA <- df$e
-e_NA[c(5, 12)] <- NA
-
-foo2_NA <- df$foo2
-foo2_NA[c(7, 34)] <- NA
-
-df <- df %>% dplyr::mutate(e_NA=e_NA, foo2_NA=foo2_NA)
+df <- dummy_df
 
 test_that("stat_lda_prepare works", {
 
@@ -58,4 +38,31 @@ test_that("stat_lda0 works fine", {
   lda1 <- stat_lda0(df0$coe_naked, df0$f_naked)
   expect_is(lda1, "tbl")
 })
+
+test_that("stat_lda works fine", {
+  df <- dummy_df
+  z <- df %>% stat_lda(foo2_NA, a:f)
+  expect_is(z, "stat_lda")
+  expect_output(print(z))
+  # positionally
+  expect_is(stat_lda(df, foo2_NA, a), "stat_lda")
+  # error since foo1 single level
+  expect_error(stat_lda(df, foo1, a:b))
+  # this one should work, also add one more column
+  expect_is(stat_lda(df, foo2, a:b, e_NA), "stat_lda")
+})
+
+test_that(".digest_* work", {
+  expect_equal(c("a", "a", "b", "b") %>% .digest_balanced(), "balanced")
+  expect_equal(c("a", "a", "b") %>% .digest_balanced(), "unbalanced (N ranges from 1 to 2)")
+
+  expect_equal(1:10 %>% .digest_numeric(), "min: 1, median: 5.5, max: 10")
+  expect_equal(1 %>% .digest_numeric(), "min: 1, median: 1, max: 1")
+
+  class_acc <- c(plop=0.5, plip=1.2, yup=5)
+
+  expect_equal(class_acc %>% .digest_class_acc(), "min: 0.5 (plop), median: 1.2 (plip), max: 5 (yup)")
+  expect_equal(class_acc %>% .digest_named_vec(), "0.5 (plop, plip, yup)")
+})
+
 

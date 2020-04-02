@@ -4,10 +4,12 @@
 \name{dummy_df}
 \alias{dummy_df}
 \title{A nicely problematic tibble}
+\format{
+todo
+}
 \description{
 A nicely problematic tibble
 }
 \examples{
 dummy_df
 }
-\concept{outlinestodo format}

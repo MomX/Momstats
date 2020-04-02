@@ -4,7 +4,6 @@
 #' Obtained with `bot2 %>% efourier(6) %>% dplyr::mutate(q=rnorm(40, 5)) %>% dplyr::select(coe, type, fake, q)`
 #' @docType data
 #' @name bot_eft
-#' @family outlines
 #' @format A `coe_tbl` with:
 #'  * `coe` (`coe_list`): eft coefficients
 #'  * `type` (`factor`): bottle type
@@ -19,8 +18,7 @@ NULL
 #'
 #' @docType data
 #' @name dummy_df
-#' @family outlines
-#'  # todo format
+#' @format todo
 #'
 #' @examples
 #' dummy_df

@@ -21,4 +21,3 @@ Obtained with \code{bot2 \%>\% efourier(6) \%>\% dplyr::mutate(q=rnorm(40, 5)) \
 \examples{
 bot_eft
 }
-\concept{outlines}

@@ -29,8 +29,4 @@ will be considered collinear (using \link[stats:cor]{stats::cor}), and dropped (
 Removes NAs, constant and collinear columns.
 Useful to speed up calculations when used with \link{stat_lda0}
 }
-\seealso{
-Other lda: 
-\code{\link{stat_lda0}()}
-}
 \concept{lda}

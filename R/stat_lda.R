@@ -65,7 +65,11 @@ stat_lda_prepare <- function(x,
   }
 
   # pulls f and drop useless levels
-  f_naked <- dplyr::transmute_at(df, 1, forcats::fct_drop)
+  f_naked <- dplyr::transmute_at(df, 1, forcats::as_factor)
+
+  # check now for at least two
+  if (nlevels(dplyr::pull(f_naked))<2)
+    stop("stat_lda_prepare: f must have at least two levels")
 
   # numeric side now ----------
   dfn <- dplyr::select(df, -1)
@@ -116,15 +120,26 @@ stat_lda_prepare <- function(x,
 #' @param x `matrix or [tibble][tibble::tibble-package] containing the explanatory variables
 #' forwarded to [MASS::lda]'s `x`
 #' @param f `factor` forwarded to [MASS::lda]'s `grouping`. If missing takes first columns and remove it from x.
+#' @param ... addtional parameters forwardes to [MASS::lda]
 #' @param full `logical` whether to prepare useful components (default to `FALSE`)
 #'
 #' @details With `full=TRUE`, it is at least 6 times slower.
 #'
-#' @family lda
+#' @name stat_lda
+#' @family  lda stats
+#' @examples
+#' (x <- dummy_df %>% stat_lda_prepare(foo2_NA, a:e))
+#'
+#' stat_lda0(x$coe_naked, x$f_naked)
+#'
+#' stat_lda(dummy_df, foo2_NA, a:e)
+NULL
+
+#' @describeIn stat_lda Vanilla lda
 #' @export
-stat_lda0 <- function(x, f, full=FALSE){
+stat_lda0 <- function(x, f, full=FALSE, ...){
   # delegate calculations to MASS
-  mod <- MASS::lda(x, f)
+  mod <- MASS::lda(x, f, ...)
   mod_pred <- stats::predict(mod, x)
 
   # avoid a second call to lda
@@ -133,20 +148,20 @@ stat_lda0 <- function(x, f, full=FALSE){
     factor(levels=levels(f))
 
 
-  res <- tibble::tibble(actual    = f,
-                        predicted = f1,
-                        correct   = f==f1,
-                        posterior = apply(mod_pred$posterior, 1, max)) %>%
+  posterior_tbl <- tibble::tibble(actual    = f,
+                                  predicted = f1,
+                                  correct   = f==f1,
+                                  posterior = apply(mod_pred$posterior, 1, max)) %>%
     dplyr::arrange(.data$actual, .data$predicted)
 
   # early return if one just want the prediction ==========
   if (!full)
-    return(res)
+    return(posterior_tbl)
 
   # otherwise return all details ==========================
   #
   # cross-validation section ------------------------------
-  CV           <- res %>% dplyr::select(1:2) %>% table()
+  CV           <- posterior_tbl %>% dplyr::select(1:2) %>% table()
 
   # may exist a shorter path but this ensure all rows are returned
   CV_tbl <- CV %>% .CV_tbl
@@ -178,12 +193,13 @@ stat_lda0 <- function(x, f, full=FALSE){
        mod               = mod,
        scores            = tibble::as_tibble(mod_pred$x),
        posterior         = tibble::as_tibble(mod_pred$posterior),
+       posterior_tbl     = posterior_tbl,
        CV                = CV,
        CV_tbl            = CV_tbl,
        CV_accuracy       = CV_accuracy,
        CV_class_accuracy = CV_class_accuracy,
        LDs = LDs) %>%
-    structure(class=c("stat_lda_full", "list"))
+    structure(class=c("stat_lda", "list"))
 }
 
 # !full is 6 times faster
@@ -195,15 +211,83 @@ stat_lda0 <- function(x, f, full=FALSE){
 # stat_lda0(x, f)          3.243079  3.451461  3.828891  3.76649  4.195635
 # stat_lda0(x, f, TRUE)    20.168418 21.801200 43.191688 22.52950 45.061394
 
+# stat_lda ------------------------------------------------
+#' @describeIn stat_lda Wrapped lda
+#' @export
+stat_lda <- function(x, f, ...){
+  # tidyeval
+  f_enquo   <- enquo(f)  ### todo: handles for formula here ??
 
-# z <- df %>% prepare_lda(foo2_NA, a:f)
-# x <- z$coe_naked
-# f <- z$f_naked
-# stat_lda0(x, f)
+  if (missing(...)) {
 
+    if (Momocs2::coe_nb(x)==0)
+      paste0("stat_lda: no coe column, and none column passed to '...'") %>% stop()
 
+    coe <- Momocs2::coe_names(x)
+    paste0("stat_lda: working on ", paste(coe, collapse=", ")) %>% .msg_info()
+    coe_enquo <- rlang::expr(tidyselect::all_of(coe))
+  } else {
+    coe_enquo <- rlang::expr(c(...))
+  }
 
-# print.stat_lda --------
+  ready <- x %>% # add removed columns ?
+    stat_lda_prepare(f=!!f_enquo, !!coe_enquo)
+
+  res <- stat_lda0(x = ready$coe_naked, f=ready$f_naked, full=TRUE)
+  res <- append(res, ready[c("posterior_tbl", "cols_constant", "cols_collinear")])
+  class(res) <- c("stat_lda", "list")
+  res
+}
+
+# print.stat_lda_full -------------------------------------
+# x is typically a factor
+.digest_balanced <- function(x){
+  y <- table(x)
+  if (length(unique(y))==1)
+    return("balanced")
+  else
+    glue::glue_data(y, "unbalanced (N ranges from {min(y)} to {max(y)})")
+}
+# c("a", "a", "b", "b") %>% .digest_balanced()
+# c("a", "a", "b") %>% .digest_balanced()
+
+# x is a named vector
+.digest_class_acc <- function(x){
+  # might be shorter
+  mini <- signif(x[x==min(x)], 3)
+  medi <- signif(x[x==stats::median(x)], 3)
+  maxi <- signif(x[x==max(x)], 3)
+  glue::glue("min: {.digest_named_vec(mini)}, median: {.digest_named_vec(medi)}, max: {.digest_named_vec(maxi)}")
+}
+
+# prints nicely a named vector
+# possibly with more than one name but a single value is expected
+.digest_named_vec <- function(x){
+  glue::glue("{as.numeric(x[1])} ({paste(names(x), collapse=', ')})")
+}
+
+# a direct alternative when names do not matter
+.digest_numeric <- function(x){
+  q <- stats::quantile(x, probs=c(0, 0.5, 1)) %>% as.numeric() %>% signif(3)
+  glue::glue("min: {q[1]}, median: {q[2]}, max: {q[3]}")
+}
+
+#' @export
+print.stat_lda <- function(x, ...){
+  cli::cli_h1("Linear Discriminant Analysis")
+  glue::glue("
+    - {nrow(x$x)} observations
+    - {ncol(x$x)} variables
+    - {nlevels(x$f)} levels, {.digest_balanced(x$f)}") %>% cat()
+  cli::cat_line()
+  cli::cat_line()
+  glue::glue("
+    - Accuracy:            {signif(x$CV_accuracy, 3)}
+    - Within classes:      {x$CV_class_accuracy %>% .digest_class_acc()}
+    - Posterior (correct): {x$posterior_tbl %>% dplyr::filter(correct) %>% dplyr::pull(posterior) %>% .digest_numeric()}
+                  ") %>% cat()
+}
+
 
 # stat_swing_lda --------
 

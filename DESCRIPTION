@@ -29,7 +29,9 @@ Imports:
     dplyr,
     cli,
     broom,
-    purrr
+    purrr,
+    crayon,
+    glue
 Remotes:
     MomX/Momocs2
 Suggests: 

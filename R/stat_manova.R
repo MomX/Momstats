@@ -53,7 +53,7 @@ stat_manova <- function(x, f, ..., test = "Pillai"){
   f_enquo   <- enquo(f)  ### todo: handles for formula here ??
 
   if (missing(...)) {
-    coe <- coe_names(x)
+    coe <- Momocs2::coe_names(x)
     paste0("stat_manova: working on ", paste(coe, collapse=", ")) %>% .msg_info()
     coe_enquo <- rlang::expr(tidyselect::all_of(coe))
   } else {
