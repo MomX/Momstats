@@ -142,7 +142,9 @@
 
     <pre class="usage"><span class='fu'>stat_lda0</span>(<span class='no'>x</span>, <span class='no'>f</span>, <span class='kw'>full</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
 
-<span class='fu'>stat_lda</span>(<span class='no'>x</span>, <span class='no'>f</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>stat_lda</span>(<span class='no'>x</span>, <span class='no'>f</span>, <span class='no'>...</span>)
+
+<span class='fu'>stat_lda_bootstrap</span>(<span class='no'>x</span>, <span class='no'>f</span>, <span class='no'>...</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>1000</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,18 +165,32 @@
       <th>...</th>
       <td><p>addtional parameters forwardes to <a href='https://rdrr.io/pkg/MASS/man/lda.html'>MASS::lda</a></p></td>
     </tr>
+    <tr>
+      <th>k</th>
+      <td><p><code>integer</code> number of permutations for <code>stat_lda_bootstrap</code> (default to <code>1000</code>)</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>With <code>full=TRUE</code>, it is at least 6 times slower.</p>
+    <p>With <code>full=FALSE</code>, <code>stat_lda0</code> is roughly 6 times faster which
+justifies both <code>stat_lda0</code> existence and <code>full</code> argument.
+Typically, <code>stat_lda_bootstrap</code> takes profit from that.</p>
     <h2 class="hasAnchor" id="functions"><a class="anchor" href="#functions"></a>Functions</h2>
 
     
 <ul>
 <li><p><code>stat_lda0</code>: Vanilla lda</p></li>
 <li><p><code>stat_lda</code>: Wrapped lda</p></li>
+<li><p><code>stat_lda_bootstrap</code>: Bootstrapped lda</p></li>
 </ul>
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p><code>stat_lda_bootstrap</code> is based on:
+Evin, Cucchi, Cardini, Vidarsdottir, Larson and Dobney (2013)
+"The long and winding road: identifying pig domestication through molar size and shape."
+<em>Journal of Archaeological Science</em> <strong>40</strong>:1 735‑43.
+https://doi.org/10.1016/j.jas.2012.08.005</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>(<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='no'>dummy_df</span> <span class='kw'>%&gt;%</span> <span class='fu'>stat_lda_prepare</span>(<span class='no'>foo2_NA</span>, <span class='no'>a</span>:<span class='no'>e</span>))</div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: dropping NAs</span></div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: d were removed (var &lt;1e-05)</span></div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: b were removed (cor &gt; 0.99999)</span></div><div class='output co'>#&gt; $df
@@ -250,7 +266,8 @@
 #&gt; 
 #&gt; - Accuracy:            0.163
 #&gt; - Within classes:      min: 0.0306 (J), median: 0.0816 (C, E, G), max: 0.133 (B, D)
-#&gt; - Posterior (correct): min: 0.127, median: 0.175, max: 0.4</div></pre>
+#&gt; - Posterior (correct): min: 0.127, median: 0.175, max: 0.4</div><div class='input'>
+<span class='no'>b</span> <span class='kw'>&lt;-</span> <span class='fu'>stat_lda_bootstrap</span>(<span class='no'>dummy_df</span>, <span class='no'>foo2_NA</span>, <span class='no'>a</span>:<span class='no'>e</span>, <span class='kw'>k</span><span class='kw'>=</span><span class='fl'>10</span>)</div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: dropping NAs</span></div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: d were removed (var &lt;1e-05)</span></div><div class='output co'>#&gt; <span class='message'>ℹ stat_lda_prepare: b were removed (cor &gt; 0.99999)</span></div><div class='input'><span class='fu'>gg_stat_lda_bootstrap</span>(<span class='no'>b</span>)</div><div class='img'><img src='stat_lda-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
