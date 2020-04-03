@@ -3,6 +3,8 @@
 
 ## Momstats <a href='http://momx.github.io/Momstats'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
+*Part of [MomX](https://momx.github.io/MomX/)*
+
 <!-- badges: start -->
 
 [![Lifecycle:
