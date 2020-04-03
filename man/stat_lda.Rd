@@ -3,11 +3,14 @@
 \name{stat_lda}
 \alias{stat_lda}
 \alias{stat_lda0}
+\alias{stat_lda_bootstrap}
 \title{Linear discriminant analysis}
 \usage{
 stat_lda0(x, f, full = FALSE, ...)
 
 stat_lda(x, f, ...)
+
+stat_lda_bootstrap(x, f, ..., k = 1000)
 }
 \arguments{
 \item{x}{\verb{matrix or [tibble][tibble::tibble-package] containing the explanatory variables forwarded to [MASS::lda]'s }x`}
@@ -17,18 +20,24 @@ stat_lda(x, f, ...)
 \item{full}{\code{logical} whether to prepare useful components (default to \code{FALSE})}
 
 \item{...}{addtional parameters forwardes to \link[MASS:lda]{MASS::lda}}
+
+\item{k}{\code{integer} number of permutations for \code{stat_lda_bootstrap} (default to \code{1000})}
 }
 \description{
 Calculations are delegated to \link[MASS:lda]{MASS::lda}
 }
 \details{
-With \code{full=TRUE}, it is at least 6 times slower.
+With \code{full=FALSE}, \code{stat_lda0} is roughly 6 times faster which
+justifies both \code{stat_lda0} existence and \code{full} argument.
+Typically, \code{stat_lda_bootstrap} takes profit from that.
 }
 \section{Functions}{
 \itemize{
 \item \code{stat_lda0}: Vanilla lda
 
 \item \code{stat_lda}: Wrapped lda
+
+\item \code{stat_lda_bootstrap}: Bootstrapped lda
 }}
 
 \examples{
@@ -37,5 +46,15 @@ With \code{full=TRUE}, it is at least 6 times slower.
 stat_lda0(x$coe_naked, x$f_naked)
 
 stat_lda(dummy_df, foo2_NA, a:e)
+
+b <- stat_lda_bootstrap(dummy_df, foo2_NA, a:e, k=10)
+gg_stat_lda_bootstrap(b)
+}
+\references{
+\code{stat_lda_bootstrap} is based on:
+Evin, Cucchi, Cardini, Vidarsdottir, Larson and Dobney (2013)
+"The long and winding road: identifying pig domestication through molar size and shape."
+\emph{Journal of Archaeological Science} \strong{40}:1 735‑43.
+https://doi.org/10.1016/j.jas.2012.08.005
 }
 \concept{lda stats}

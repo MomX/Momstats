@@ -26,6 +26,7 @@ reference:
     contents:
       - starts_with("stat_lda")
       - gg_CV
+      - gg_stat_lda_bootstrap
 
   - title: "stat_manova: Multivariate analysis of variance"
     desc: >
@@ -35,7 +36,7 @@ reference:
 
   - title: "Datasets"
     desc: >
-      To play with Moms
+      To play with Momstats
     contents:
       - bot_eft
       - dummy_df

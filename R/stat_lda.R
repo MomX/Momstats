@@ -111,8 +111,8 @@ stat_lda_prepare <- function(x,
        rows_NA           = rows_NA)
 }
 
-# stat_lda0 -----------------------------------------------
 
+# stat_lda* doc -------------------------------------------
 #' Linear discriminant analysis
 #'
 #' Calculations are delegated to [MASS::lda]
@@ -122,8 +122,17 @@ stat_lda_prepare <- function(x,
 #' @param f `factor` forwarded to [MASS::lda]'s `grouping`. If missing takes first columns and remove it from x.
 #' @param ... addtional parameters forwardes to [MASS::lda]
 #' @param full `logical` whether to prepare useful components (default to `FALSE`)
+#' @param k `integer` number of permutations for `stat_lda_bootstrap` (default to `1000`)
 #'
-#' @details With `full=TRUE`, it is at least 6 times slower.
+#' @details With `full=FALSE`, `stat_lda0` is roughly 6 times faster which
+#' justifies both `stat_lda0` existence and `full` argument.
+#' Typically, `stat_lda_bootstrap` takes profit from that.
+#'
+#' @references `stat_lda_bootstrap` is based on:
+#' Evin, Cucchi, Cardini, Vidarsdottir, Larson and Dobney (2013)
+#' "The long and winding road: identifying pig domestication through molar size and shape."
+#' *Journal of Archaeological Science* **40**:1 735‑43.
+#' https://doi.org/10.1016/j.jas.2012.08.005
 #'
 #' @name stat_lda
 #' @family  lda stats
@@ -133,8 +142,12 @@ stat_lda_prepare <- function(x,
 #' stat_lda0(x$coe_naked, x$f_naked)
 #'
 #' stat_lda(dummy_df, foo2_NA, a:e)
+#'
+#' b <- stat_lda_bootstrap(dummy_df, foo2_NA, a:e, k=10)
+#' gg_stat_lda_bootstrap(b)
 NULL
 
+# stat_lda0 -----------------------------------------------
 #' @describeIn stat_lda Vanilla lda
 #' @export
 stat_lda0 <- function(x, f, full=FALSE, ...){
@@ -288,7 +301,149 @@ print.stat_lda <- function(x, ...){
                   ") %>% cat()
 }
 
+# stat_lda_bootstrap --------------------------------------
+#' @describeIn stat_lda Bootstrapped lda
+#' @export
+stat_lda_bootstrap <- function(x, f, ..., k=1e3){
+  # tidyeval
+  f_enquo   <- enquo(f)  ### todo: handles for formula here ??
 
-# stat_swing_lda --------
+  if (missing(...)) {
+
+    if (Momocs2::coe_nb(x)==0)
+      paste0("stat_lda: no coe column, and none column passed to '...'") %>% stop()
+
+    coe <- Momocs2::coe_names(x)
+    paste0("stat_lda: working on ", paste(coe, collapse=", ")) %>% .msg_info()
+    coe_enquo <- rlang::expr(tidyselect::all_of(coe))
+  } else {
+    coe_enquo <- rlang::expr(c(...))
+  }
+
+  ready <- x %>% # add removed columns ?
+    stat_lda_prepare(f=!!f_enquo, !!coe_enquo)
+
+  # bootstrapping section -------------
+  # message for k, if missing
+  if (missing(k))
+    paste0("stat_lda_bootstrap: k missing, set to ", k) %>% .msg_info()
+
+  # extract df for the sake of readability
+  df0   <- ready$df
+  # also make a grouped version of it
+  # stat_lda_prepare returns a df with f at the first column
+  # so we can group_by_at and do not bother with f name
+  df0_g <- dplyr::group_by_at(df0, 1)
+
+  # minimal sample size
+  n_min <- min(table(df0[[1]]))
+
+  # using purrr and dplyr this becomes a piece of cake
+  # the stat_lda0 call need braces, see ?pipe#details
+
+  # observed
+  observed <- stat_lda0(x=df0[-1], f=df0[[1]]) %>%
+    dplyr::pull(.data$correct) %>%
+    mean()
+
+  # random
+  random <-
+    purrr::map_df(1:k,
+                  ~ df0 %>%
+                    # shuffle the first column
+                    dplyr::mutate_at(1, sample) %>%
+                    # lda
+                    {stat_lda0(x=.[-1], f=.[[1]], full=FALSE)} %>%
+                    # add index
+                    dplyr::mutate(k=.x)) %>%
+    dplyr::mutate(what="random")
+
+  # balanced
+  balanced <-
+    purrr::map_df(1:k,
+                  ~df0_g %>%
+                    # resample within levels
+                    dplyr::sample_n(size=n_min, replace=FALSE) %>%
+                    # lda
+                    {stat_lda0(x=.[-1], f=.[[1]], full=FALSE)} %>%
+                    # add index
+                    dplyr::mutate(k=.x)) %>%
+    dplyr::mutate(what="balanced")
+
+  # random and balanced
+  random_balanced <-
+    purrr::map_df(1:k,
+                  ~ df0_g %>%
+                    # resample within levels
+                    dplyr::sample_n(size=n_min, replace=FALSE) %>%
+                    # ungroup and reshuffle globally
+                    dplyr::ungroup() %>%
+                    dplyr::mutate_at(1, sample) %>%
+                    # lda
+                    {stat_lda0(x=.[-1], f=.[[1]], full=FALSE)} %>%
+                    # add index
+                    dplyr::mutate(k=.x)) %>%
+    dplyr::mutate(what="random_balanced")
+  # end bootstrapping section ---------
+
+  # gather these beauties
+  CV_raw <- dplyr::bind_rows(random, balanced, random_balanced) %>%
+    dplyr::select(.data$what, k, dplyr::everything())
+
+  # digest globally
+  CV_accuracy <- CV_raw %>%
+    dplyr::group_by(.data$what, .data$k) %>%
+    dplyr::summarise(accuracy=mean(.data$correct)) %>%
+    dplyr::ungroup()
+
+  # and per class
+  CV_class_accuracy <- CV_raw %>%
+    dplyr::group_by(.data$what, .data$k, .data$actual) %>%
+    dplyr::summarise(accuracy=mean(.data$correct)) %>%
+    dplyr::ungroup()
+
+  # return these beauties
+  res <- list(k                 = k,
+              observed          = observed,
+              CV_raw            = CV_raw,
+              CV_accuracy       = CV_accuracy,
+              CV_class_accuracy = CV_class_accuracy)
+  class(res) <- c("stat_lda_bootstrap", "list")
+  res
+}
+
+# # class accuracy gg
+# CV_class_accuracy %>%
+#   ggplot() +
+#   # aes(x=forcats::fct_reorder(actual, accuracy, median), y=accuracy, fill=what) +
+#   aes(x=actual, y=accuracy, fill=what) +
+#   geom_hline(yintercept = observed, linetype="dashed", colour="grey50") +
+#   geom_violin(alpha=0.75, outlier.size = 1/.point) +
+#   theme_minimal() +
+#   # scale_x_discrete(labels=c("balanced", "random", "random and balanced")) +
+#   annotate("text", x = 0, y = observed, hjust=0, vjust=-0.5,
+#            label = paste0("observed=", signif(observed, 3)),
+#            size=8/.point, colour="grey20") +
+#   labs(x="resampled datasets", y="accuracy", subtitle = paste0(k, " permutations")) +
+#   facet_grid(what~.)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

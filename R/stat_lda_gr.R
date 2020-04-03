@@ -154,4 +154,35 @@ gg_CV.matrix <- function(x,
         axis_x_angle = axis_x_angle)
 }
 
+#' Plot stat_lda_bootstrap digest
+#'
+#' Plots as heatmap and with useful cosmetics
+#'
+#' @param x object returned by [stat_lda_bootstrap]
+#'
+#' @examples
+#' dummy_df %>%
+#'     stat_lda_bootstrap(foo2_NA, a:e, k=10) %>%
+#'     gg_stat_lda_bootstrap()
+#' @export
+gg_stat_lda_bootstrap <- function(x){
+
+  # extract what we need
+  df       <- x$CV_accuracy
+  observed <- x$observed
+  k        <- x$k
+
+  # let's go
+  df %>%
+    ggplot2::ggplot() +
+    ggplot2::aes(x=.data$what, y=.data$accuracy) +
+    ggplot2::geom_hline(yintercept = observed, linetype="dashed", colour="grey50") +
+    ggplot2::geom_violin(alpha=0.75) +
+    ggplot2::theme_minimal() +
+    ggplot2::scale_x_discrete(labels=c("balanced", "random", "random and balanced")) +
+    ggplot2::annotate("text", x = 0, y = observed, hjust=0, vjust=-0.5,
+                      label = paste0("observed=", signif(observed, 3)),
+                      size=8/.point, colour="grey20") +
+    ggplot2::labs(x="resampled datasets", y="accuracy", subtitle = paste0(k, " permutations"))
+}
 
