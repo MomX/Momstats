@@ -2,5 +2,5 @@
 
 ## All functions
 
-- [`hello()`](https://momx.github.io/Momstats/reference/hello.md) :
-  Hello triggers
+- [`boteft`](https://momx.github.io/Momstats/reference/boteft.md) :
+  Bottle outlines with elliptic Fourier transform coefficients
