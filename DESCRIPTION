@@ -1,11 +1,19 @@
 Package: Momstats
-Type: Package
-Title: What the Package Does (Title Case)
+Title: Statistical Methods for Morphometric Data
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Authors@R: 
+    person("Vincent", "Bonhomme", 
+           email = "bonhomme.vincent@gmail.com", 
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-2742-6349"))
+Maintainer: <bonhomme.vincent@gmail.com>
+Description: The goal of 'Momstats' is to provide statistical methods on top of 'Momocs2' tibbles,
+    and chiefly multivariate methods on morphometric data. This includes mean shapes, 
+    principal component analyses along with morphological space reconstruction,
+    multivariate hypothesis testing, linear discriminant analyses with permutations and balancing, 
+    hierachical clustering methods, kmeans and kmedoids, etc.
+    Visualization is at heart with several extensions to 'ggplot2' graphics.
+    A light dispatching strategy makes it comfortable and consistent to use. 
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -13,3 +21,7 @@ URL: https://github.com/MomX/Momstats, https://momx.github.io/Momstats/
 BugReports: https://github.com/MomX/Momstats/issues
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Depends: 
+    R (>= 3.5)
+Imports: 
+    Momocs2
