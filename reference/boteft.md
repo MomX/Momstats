@@ -137,11 +137,9 @@ boteft$coe[[1]]
 
 # Unfold coefficients for statistical analysis
 boteft_unfolded <- unfold(boteft, coe)
-#> Error in loadNamespace(x): there is no package called ‘dplyr’
 
 # Or without prefix
 boteft_unfolded <- unfold(boteft, coe, .prefix = "")
-#> Error in loadNamespace(x): there is no package called ‘dplyr’
 
 # Principal component analysis on coefficients
 # pca_result <- stat_pca(boteft)

@@ -88,12 +88,12 @@ representing the shape in Fourier space.</p></li>
     <h2 id="source">Source<a class="anchor" aria-label="anchor" href="#source"></a></h2>
     <p>Obtained with:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">bot</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">mutate</span><span class="op">(</span>length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu">get_length</span><span class="op">(</span><span class="va">coo</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu">get_length</span><span class="op">(</span><span class="va">coo</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">coo_center</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">coo_scale</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">coo_align</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">coo_slide_direction</span><span class="op">(</span><span class="st">"right"</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">mutate</span><span class="op">(</span>coe <span class="op">=</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">coo</span>, <span class="va">eft</span>, <span class="fl">6</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>coe <span class="op">=</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">coo</span>, <span class="va">eft</span>, <span class="fl">6</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>                      <span class="fu">as_coe</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>                      <span class="fu">as_eft</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">boteft</span></span></code></pre><p></p></div>
     </div>
@@ -171,11 +171,9 @@ the overall shape structure.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Unfold coefficients for statistical analysis</span></span></span>
 <span class="r-in"><span><span class="va">boteft_unfolded</span> <span class="op">&lt;-</span> <span class="fu"><a href="Momocs2-reexports.html">unfold</a></span><span class="op">(</span><span class="va">boteft</span>, <span class="va">coe</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in loadNamespace(x):</span> there is no package called ‘dplyr’</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Or without prefix</span></span></span>
 <span class="r-in"><span><span class="va">boteft_unfolded</span> <span class="op">&lt;-</span> <span class="fu"><a href="Momocs2-reexports.html">unfold</a></span><span class="op">(</span><span class="va">boteft</span>, <span class="va">coe</span>, .prefix <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in loadNamespace(x):</span> there is no package called ‘dplyr’</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Principal component analysis on coefficients</span></span></span>
 <span class="r-in"><span><span class="co"># pca_result &lt;- stat_pca(boteft)</span></span></span>
