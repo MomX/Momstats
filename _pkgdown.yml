@@ -48,6 +48,7 @@ navbar:
       - text: Momocs
         href: https://momx.github.io/Momocs/
 
+reference:
 - title: "Statistical analyses"
   desc: "Core functions"
   contents:
