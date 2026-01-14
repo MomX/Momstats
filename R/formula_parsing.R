@@ -8,19 +8,27 @@
 #' Extract predictor columns from formula for unsupervised methods (PCA, clustering, etc.)
 #'
 #' @param data A tibble
-#' @param formula_quo A quosure containing the formula or bare column name
+#' @param formula_quo A quosure or expression containing the formula or bare column name
 #'
 #' @return A list with:
 #' * `coe_cols`: Coefficient column names
 #' * `covariate_cols`: Covariate column names
 #' * `predictor_cols`: All predictor column names
+#' * `messages`: Messages about column detection
 #'
 #' @keywords internal
 #' @noRd
 parse_unsupervised_formula <- function(data, formula_quo) {
 
-  # If missing/NULL, auto-detect
-  if (rlang::quo_is_null(formula_quo)) {
+  # Extract expression (works with both enquo and raw expressions)
+  if (inherits(formula_quo, "quosure")) {
+    formula_expr <- rlang::quo_get_expr(formula_quo)
+  } else {
+    formula_expr <- formula_quo
+  }
+
+  # If missing/NULL, auto-detect single coe
+  if (is.null(formula_expr) || identical(formula_expr, quote(expr = ))) {
     coe_cols <- get_coe_cols(data)
     return(list(
       coe_cols = coe_cols,
@@ -30,13 +38,10 @@ parse_unsupervised_formula <- function(data, formula_quo) {
     ))
   }
 
-  # Get the actual expression
-  formula_expr <- rlang::quo_get_expr(formula_quo)
-
   # Case 1: Bare column name (not a formula)
-  if (!rlang::is_call(formula_expr, "~")) {
+  if (!is.call(formula_expr) || !identical(formula_expr[[1]], as.name("~"))) {
     # It's a bare name like `coe`
-    col_name <- rlang::as_name(formula_quo)
+    col_name <- as.character(formula_expr)
 
     # Check if it exists
     if (!col_name %in% names(data)) {
@@ -64,7 +69,7 @@ parse_unsupervised_formula <- function(data, formula_quo) {
 
   # Case 2: Formula
   # Extract RHS (there's no LHS for unsupervised)
-  rhs <- rlang::f_rhs(rlang::eval_tidy(formula_quo))
+  rhs <- formula_expr[[3]]
 
   # Parse RHS to get predictor terms
   predictor_terms <- parse_formula_terms(rhs, data)
@@ -78,11 +83,83 @@ parse_unsupervised_formula <- function(data, formula_quo) {
 }
 
 
+#' Parse supervised formula
+#'
+#' Extract response and predictor columns from formula for supervised methods (LDA, MANOVA, etc.)
+#'
+#' @param data A tibble
+#' @param formula_expr An expression from substitute() or enquo()
+#'
+#' @return A list with:
+#' * `response_col`: Response column name
+#' * `coe_cols`: Coefficient column names
+#' * `covariate_cols`: Covariate column names
+#' * `predictor_cols`: All predictor column names
+#' * `messages`: Messages about column detection
+#'
+#' @keywords internal
+#' @noRd
+parse_supervised_formula <- function(data, formula_expr) {
+
+  # Case 1: Bare column name → auto-grab all coe columns
+  if (!is.call(formula_expr) || !identical(formula_expr[[1]], as.name("~"))) {
+    # It's a bare name like `species`
+    response_col <- as.character(formula_expr)
+
+    # Check if it exists
+    if (!response_col %in% names(data)) {
+      stop(sprintf("Column '%s' not found in data", response_col))
+    }
+
+    # Auto-grab all coe columns
+    coe_cols <- Momocs2::get_all_coe_cols(data)
+
+    return(list(
+      response_col = response_col,
+      coe_cols = coe_cols,
+      covariate_cols = character(0),
+      predictor_cols = coe_cols,
+      messages = sprintf("Response: '%s', using all coe columns: %s",
+                         response_col, paste(coe_cols, collapse = ", "))
+    ))
+  }
+
+  # Case 2: Formula with response ~ predictors
+  # Extract LHS (response)
+  lhs <- formula_expr[[2]]
+  if (is.null(lhs)) {
+    stop("Formula must have a response variable (e.g., species ~ coe)")
+  }
+
+  response_col <- as.character(lhs)
+
+  # Check response exists
+  if (!response_col %in% names(data)) {
+    stop(sprintf("Response column '%s' not found in data", response_col))
+  }
+
+  # Extract RHS (predictors)
+  rhs <- formula_expr[[3]]
+
+  # Parse RHS to get predictor terms
+  predictor_terms <- parse_formula_terms(rhs, data)
+
+  list(
+    response_col = response_col,
+    coe_cols = predictor_terms$coe_cols,
+    covariate_cols = predictor_terms$covariate_cols,
+    predictor_cols = predictor_terms$predictor_cols,
+    messages = c(sprintf("Response: '%s'", response_col), predictor_terms$messages)
+  )
+}
+
+
 #' Parse formula terms
 #'
 #' Extract coe and covariate columns from formula RHS
+#' Handles "." expansion to all coe columns
 #'
-#' @param rhs Right-hand side of formula
+#' @param rhs Right-hand side of formula (expression)
 #' @param data A tibble
 #'
 #' @return List with coe_cols, covariate_cols, predictor_cols, messages
@@ -99,11 +176,12 @@ parse_formula_terms <- function(rhs, data) {
   messages <- character(0)
 
   for (term in terms_list) {
-    # Special case: "coe" triggers auto-detection
-    if (term == "coe") {
-      detected <- get_coe_cols(data)
+    # Special case: "." triggers expansion to all coe columns
+    if (term == ".") {
+      detected <- Momocs2::get_all_coe_cols(data)
       coe_cols <- c(coe_cols, detected)
-      messages <- c(messages, sprintf("Auto-detected coe column: '%s'", detected))
+      messages <- c(messages, sprintf("Expanded '.' to all coe columns: %s",
+                                      paste(detected, collapse = ", ")))
     } else if (term %in% names(data)) {
       # Check if it's a coe column by class
       if ("coe" %in% class(data[[term]])) {

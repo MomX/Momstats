@@ -566,7 +566,6 @@ plot_pca_loadings <- function(x, pcs, labels, cex) {
   }
 }
 
-
 # Plot helpers (shared across methods) ----
 
 #' Add legend to plot

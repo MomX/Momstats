@@ -5,9 +5,27 @@
 \alias{fold}
 \alias{unfold}
 \alias{get_coe_cols}
+\alias{get_all_coe_cols}
 \title{Functions re-exported from Momocs2}
+\usage{
+fold(.data, ..., .class = NULL)
+
+unfold(x, ...)
+
+get_coe_cols(df, .cols = NULL)
+
+get_all_coe_cols(df)
+}
 \description{
 These functions are re-exported from Momocs2 for convenient access in Momstats.
-See the Momocs2 documentation for details.
+Click the function names below to see their full documentation in Momocs2.
+}
+\seealso{
+\itemize{
+\item \code{\link[Momocs2:fold]{Momocs2::fold()}} - Fold multiple columns into a list-column
+\item \code{\link[Momocs2:unfold]{Momocs2::unfold()}} - Unfold a list-column into multiple columns
+\item \code{\link[Momocs2:get_coe_cols]{Momocs2::get_coe_cols()}} - Get single coefficient column name
+\item \code{\link[Momocs2:get_coe_cols]{Momocs2::get_all_coe_cols()}} - Get all coefficient column names
+}
 }
 \keyword{internal}

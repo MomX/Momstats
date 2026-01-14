@@ -54,8 +54,7 @@ reference:
   desc: "Core functions"
   contents:
   - stat_pca
-  - plot.stat_pca
-  - collect.stat_pca
+  - stat_lda
 
 - title: "Verbs"
   desc: "That applies to all stat_*"
