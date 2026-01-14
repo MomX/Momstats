@@ -104,16 +104,16 @@ boteft
 #> # A tibble: 40 × 5
 #>    coo       type   dummy length coe  
 #>    <out>     <fct>  <fct>  <dbl> <eft>
-#>  1 (138 x 2) whisky a      1088. <NA> 
-#>  2 (168 x 2) whisky a       994. <NA> 
-#>  3 (189 x 2) whisky a       644. <NA> 
-#>  4 (129 x 2) whisky a       806. <NA> 
-#>  5 (152 x 2) whisky a       886. <NA> 
-#>  6 (161 x 2) whisky a       606. <NA> 
-#>  7 (124 x 2) whisky a       865. <NA> 
-#>  8 (126 x 2) whisky a       765. <NA> 
-#>  9 (183 x 2) whisky a       742. <NA> 
-#> 10 (193 x 2) whisky a      1048. <NA> 
+#>  1 (138 x 2) whisky a      1088. <24> 
+#>  2 (168 x 2) whisky a       994. <24> 
+#>  3 (189 x 2) whisky a       644. <24> 
+#>  4 (129 x 2) whisky a       806. <24> 
+#>  5 (152 x 2) whisky a       886. <24> 
+#>  6 (161 x 2) whisky a       606. <24> 
+#>  7 (124 x 2) whisky a       865. <24> 
+#>  8 (126 x 2) whisky a       765. <24> 
+#>  9 (183 x 2) whisky a       742. <24> 
+#> 10 (193 x 2) whisky a      1048. <24> 
 #> # ℹ 30 more rows
 
 # Examine coefficient structure

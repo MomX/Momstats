@@ -1,6 +1,17 @@
 # Momstats
 
-The goal of Momstats is to …
+The goal of ‘Momstats’ is to provide statistical methods on top of
+‘Momocs2’ tibbles, and chiefly multivariate methods on morphometric
+data.
+
+This includes mean shapes, principal component analyses along with
+morphological space reconstruction, multivariate hypothesis testing,
+linear discriminant analyses with permutations and balancing,
+hierachical clustering methods, kmeans and kmedoids, etc.
+
+Visualization is at heart with several extensions to ‘ggplot2’ graphics.
+
+A light dispatching strategy makes it comfortable and consistent to use.
 
 ## Installation
 
@@ -8,39 +19,6 @@ You can install the development version of Momstats from
 [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("pak")
-pak::pak("MomX/Momstats")
+# install.packages("pak") # once on CRAN
+pak::pak("MomX/Momstats") # from Github
 ```
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(Momstats)
-## basic example code
-```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
-
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-![](reference/figures/README-pressure-1.png)
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
