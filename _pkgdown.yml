@@ -61,6 +61,15 @@ reference:
   contents:
   - collect
 
+- title: "Methods"
+  desc: "to be reorganized"
+  contents:
+  - collect.stat_lda
+  - collect.stat_pca
+  - plot.stat_lda
+  - plot.stat_pca
+
+
 - title: "Data"
   desc: "To play with"
   contents:
