@@ -47,3 +47,10 @@ navbar:
       - text: Legacy Packages
       - text: Momocs
         href: https://momx.github.io/Momocs/
+
+- title: "Statistical analyses"
+  desc: "Core functions"
+  contents:
+  - stat_pca
+  - plot.stat_pca
+  - collect.stat_pca

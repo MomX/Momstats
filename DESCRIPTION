@@ -25,6 +25,8 @@ Depends:
     R (>= 3.5)
 Imports: 
     dplyr,
-    Momocs2
+    magrittr,
+    Momocs2,
+    rlang
 Remotes:
     MomX/Momocs2
