@@ -49,9 +49,20 @@ navbar:
         href: https://momx.github.io/Momocs/
 
 reference:
+
 - title: "Statistical analyses"
   desc: "Core functions"
   contents:
   - stat_pca
   - plot.stat_pca
   - collect.stat_pca
+
+- title: "Verbs"
+  desc: "That applies to all stat_*"
+  contents:
+  - collect
+
+- title: "Data"
+  desc: "To play with"
+  contents:
+  - boteft
