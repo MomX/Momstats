@@ -21,9 +21,7 @@
 #' * `method`: "pca"
 #' * `call`: The function call
 #' * `formula`: Formula used (if any)
-#' * `coe_cols`: Names of coefficient columns used
-#' * `covariate_cols`: Names of covariate columns used (if any)
-#' * `predictor_cols`: All predictor column names
+#' * `predictor_cols`: All predictor column names (coe + others)
 #' * `group_col`: NULL (no grouping for PCA)
 #' * `variance_explained`: Proportion of variance explained by each PC
 #' * `cumvar_explained`: Cumulative proportion of variance explained
@@ -138,8 +136,6 @@ stat_pca <- function(data, formula = NULL, center = TRUE, scale = NULL, ...) {
     method = "pca",
     call = call,
     formula = formula,
-    coe_cols = coe_cols,
-    covariate_cols = covariate_cols,
     predictor_cols = predictor_cols,
     group_col = NULL,
     variance_explained = variance_explained,
@@ -150,6 +146,24 @@ stat_pca <- function(data, formula = NULL, center = TRUE, scale = NULL, ...) {
 
   class(result) <- c("stat_pca", "momstats")
   result
+}
+
+
+# Helper functions ----
+
+#' Get coefficient columns from predictor columns
+#'
+#' @param data A tibble
+#' @param predictor_cols Character vector of predictor column names
+#'
+#' @return Character vector of coe column names
+#'
+#' @keywords internal
+#' @noRd
+get_coe_from_predictors <- function(data, predictor_cols) {
+  predictor_cols[
+    sapply(data[predictor_cols], function(x) "coe" %in% class(x))
+  ]
 }
 
 
@@ -167,7 +181,7 @@ stat_pca <- function(data, formula = NULL, center = TRUE, scale = NULL, ...) {
 #' @noRd
 determine_scale_default <- function(data, coe_cols, covariate_cols) {
 
-  # If covariates present, scale
+  # If covariates present (non-coe predictors), scale
   if (length(covariate_cols) > 0) {
     return(TRUE)
   }
@@ -312,13 +326,17 @@ print.stat_pca <- function(x, ...) {
   cat("Principal Component Analysis\n")
   cat("---------------------------------------\n")
 
+  # Identify coe columns from predictor_cols
+  coe_cols <- get_coe_from_predictors(x$data, x$predictor_cols)
+  other_cols <- setdiff(x$predictor_cols, coe_cols)
+
   # Build predictor description
   pred_parts <- character()
-  if (length(x$coe_cols) > 0) {
-    pred_parts <- c(pred_parts, paste(x$coe_cols, collapse = " + "))
+  if (length(coe_cols) > 0) {
+    pred_parts <- c(pred_parts, paste(coe_cols, collapse = " + "))
   }
-  if (length(x$covariate_cols) > 0) {
-    pred_parts <- c(pred_parts, paste(x$covariate_cols, collapse = " + "))
+  if (length(other_cols) > 0) {
+    pred_parts <- c(pred_parts, paste(other_cols, collapse = " + "))
   }
   pred_desc <- paste(pred_parts, collapse = " + ")
 
@@ -332,9 +350,9 @@ print.stat_pca <- function(x, ...) {
   # Build reason message
   if (!x$scale) {
     reason <- "(pure EFT coefficients)"
-  } else if (length(x$covariate_cols) > 0) {
+  } else if (length(other_cols) > 0) {
     reason <- "(mixed predictors)"
-  } else if (length(x$coe_cols) > 1) {
+  } else if (length(coe_cols) > 1) {
     reason <- "(multiple coefficient types)"
   } else {
     reason <- "(non-EFT coefficients)"
@@ -566,6 +584,7 @@ plot_pca_loadings <- function(x, pcs, labels, cex) {
   }
 }
 
+
 # Plot helpers (shared across methods) ----
 
 #' Add legend to plot
@@ -686,4 +705,269 @@ summary.stat_pca <- function(object, ...) {
   }
 
   invisible(object)
+}
+
+
+# Predict method ----
+
+#' Predict method for PCA
+#'
+#' Project new data onto principal components from a fitted PCA model.
+#'
+#' @param object A `stat_pca` object
+#' @param newdata A tibble with the same predictor columns as training data
+#' @param retain How many PCs to return:
+#'   * `NULL` (default): All PCs
+#'   * Integer (e.g., `5`): First N PCs
+#'   * Numeric 0-1 (e.g., `0.95`): PCs explaining this proportion of variance
+#' @param fold How to return PC scores:
+#'   * `FALSE` (default): Add as separate columns (`PC1`, `PC2`, ...)
+#'   * `TRUE`: Fold into single list-column named `"pca"`
+#'   * Character: Fold into single list-column with this name
+#' @param .collect Logical. Should predictions be added to `newdata` (TRUE, default)
+#'   or returned as a standalone tibble (FALSE)?
+#' @param ... Additional arguments (reserved)
+#'
+#' @return If `.collect = TRUE`, returns `newdata` with PC scores added. If
+#'   `.collect = FALSE`, returns a tibble with identifier columns (non-coe) and
+#'   PC scores only.
+#'
+#' @examples
+#' \dontrun{
+#' # Train PCA
+#' pca <- boteft %>% stat_pca()
+#'
+#' # Predict on new data
+#' new_scores <- predict(pca, new_data)
+#'
+#' # Pipe the model
+#' new_scores <- training %>%
+#'   stat_pca() %>%
+#'   predict(testing)
+#' }
+#'
+#' @export
+predict.stat_pca <- function(object, newdata, retain = NULL, fold = FALSE,
+                             .collect = TRUE, ...) {
+
+  if (!is.data.frame(newdata)) {
+    stop("newdata must be a tibble or data frame")
+  }
+
+  # Identify coe columns from predictor_cols
+  coe_cols <- get_coe_from_predictors(object$data, object$predictor_cols)
+  other_cols <- setdiff(object$predictor_cols, coe_cols)
+
+  # Check all required columns present
+  missing_cols <- setdiff(object$predictor_cols, names(newdata))
+
+  if (length(missing_cols) > 0) {
+    stop(sprintf("Missing required columns in newdata: %s",
+                 paste(missing_cols, collapse = ", ")))
+  }
+
+  # Build predictor matrix
+  pred_matrix <- build_predictor_matrix(newdata, coe_cols, other_cols)
+
+  # Check structure matches
+  expected_cols <- if (!is.null(object$model$center)) {
+    names(object$model$center)
+  } else {
+    rownames(object$model$rotation)
+  }
+
+  if (!identical(colnames(pred_matrix), expected_cols)) {
+    stop("Predictor structure doesn't match training data")
+  }
+
+  # Get PC scores
+  pc_scores <- predict(object$model, newdata = pred_matrix)
+
+  # Determine which PCs to retain
+  if (is.null(retain)) {
+    pcs_to_keep <- seq_len(ncol(pc_scores))
+  } else if (retain >= 1) {
+    pcs_to_keep <- seq_len(min(retain, ncol(pc_scores)))
+  } else if (retain > 0 && retain < 1) {
+    pcs_to_keep <- seq_len(which(object$cumvar_explained >= retain)[1])
+  } else {
+    stop("retain must be NULL, an integer >= 1, or a proportion between 0 and 1")
+  }
+
+  selected_scores <- pc_scores[, pcs_to_keep, drop = FALSE]
+
+  # Prepare output
+  if (.collect) {
+    result <- newdata
+  } else {
+    non_pred_cols <- setdiff(names(newdata), object$predictor_cols)
+    if (length(non_pred_cols) > 0) {
+      result <- newdata[, non_pred_cols, drop = FALSE]
+    } else {
+      result <- tibble::tibble(.rows = nrow(newdata))
+    }
+  }
+
+  # Add PC scores
+  if (isFALSE(fold)) {
+    for (i in seq_len(ncol(selected_scores))) {
+      col_name <- paste0("PC", pcs_to_keep[i])
+      result[[col_name]] <- selected_scores[, i]
+    }
+  } else {
+    col_name <- if (isTRUE(fold)) "pca" else as.character(fold)
+
+    if (col_name %in% names(result)) {
+      stop(sprintf("Column '%s' already exists", col_name))
+    }
+
+    pc_list <- lapply(seq_len(nrow(selected_scores)), function(i) {
+      vec <- selected_scores[i, ]
+      names(vec) <- paste0("PC", pcs_to_keep)
+      class(vec) <- c("pca", "coe", "numeric")
+      vec
+    })
+
+    class(pc_list) <- c("pca", "coe", "list")
+    result[[col_name]] <- pc_list
+  }
+
+  result
+}
+
+# transduce -----
+
+#' @rdname transduce
+#' @export
+transduce.stat_pca <- function(object, positions) {
+
+  # 1. Validate positions is a tibble/data.frame
+  if (!is.data.frame(positions)) {
+    stop("positions must be a tibble or data frame")
+  }
+
+  if (nrow(positions) == 0) {
+    stop("positions tibble is empty")
+  }
+
+  # 2. Validate column names are PCs
+  pos_names <- names(positions)
+
+  if (!all(grepl("^PC[0-9]+$", pos_names))) {
+    stop("positions columns must be PC components (e.g., PC1, PC2, ...)")
+  }
+
+  # Extract PC numbers and validate they exist
+  pc_nums <- as.integer(sub("PC", "", pos_names))
+  max_pc <- ncol(object$model$x)
+
+  if (any(pc_nums < 1 | pc_nums > max_pc)) {
+    stop(sprintf("PC numbers must be between 1 and %d", max_pc))
+  }
+
+  # 3. Identify coe columns from predictor_cols
+  coe_cols <- object$predictor_cols[
+    sapply(object$data[object$predictor_cols], function(x) "coe" %in% class(x))
+  ]
+
+  if (length(coe_cols) == 0) {
+    stop("No coe columns found in model predictors")
+  }
+
+  # Get coe classes
+  coe_classes <- sapply(object$data[coe_cols], function(col) class(col)[1])
+
+  # 4. Reconstruct coefficients for each position
+  n_positions <- nrow(positions)
+
+  # Pre-allocate lists for coe columns
+  coe_lists <- vector("list", length(coe_cols))
+  names(coe_lists) <- coe_cols
+
+  for (i in seq_along(coe_cols)) {
+    coe_lists[[i]] <- vector("list", n_positions)
+  }
+
+  # Get model components
+  center <- object$model$center
+  scale_vec <- object$model$scale
+  rotation <- object$model$rotation
+
+  # For each position (row)
+  for (i in seq_len(n_positions)) {
+    # Create FULL PC score vector (all PCs at 0, except specified ones)
+    full_pc_scores <- rep(0, max_pc)
+
+    # Fill in the specified PCs from the tibble
+    for (j in seq_along(pc_nums)) {
+      full_pc_scores[pc_nums[j]] <- positions[[j]][i]
+    }
+
+    # Convert to row matrix
+    pc_scores <- matrix(full_pc_scores, nrow = 1)
+
+    # Reconstruct predictor matrix: X = PC_scores %*% t(rotation)
+    reconstructed <- as.vector(pc_scores %*% t(rotation))
+
+    # Reverse scaling if applied
+    if (!is.null(scale_vec) && !isFALSE(scale_vec)) {
+      reconstructed <- reconstructed * scale_vec
+    }
+
+    # Reverse centering
+    reconstructed <- reconstructed + center
+
+    # Split reconstructed predictors back into coe columns
+    col_start <- 1
+    for (j in seq_along(coe_cols)) {
+      # Get number of coefficients for this coe column
+      example_coe <- object$data[[coe_cols[j]]][[1]]
+      n_coe <- length(example_coe)
+      col_end <- col_start + n_coe - 1
+
+      # Extract coefficients
+      coe_vec <- reconstructed[col_start:col_end]
+      names(coe_vec) <- names(example_coe)
+      class(coe_vec) <- c(coe_classes[j], "coe", "numeric")
+
+      # Store
+      coe_lists[[j]][[i]] <- coe_vec
+
+      col_start <- col_end + 1
+    }
+  }
+
+  # 5. Build result tibble: positions + coe columns
+  result <- positions
+
+  # Add coe columns
+  for (j in seq_along(coe_cols)) {
+    coe_col <- coe_cols[j]
+    class(coe_lists[[j]]) <- c(coe_classes[j], "coe", "list")
+    result[[coe_col]] <- coe_lists[[j]]
+  }
+
+  # 6. Add inverse columns by calling the proper inverse function
+  for (j in seq_along(coe_cols)) {
+    coe_col <- coe_cols[j]
+    shape_col <- paste0(coe_col, "_i")
+    coe_class <- coe_classes[j]
+
+    # Get the inverse function name
+    inverse_fn_name <- paste0(coe_class, "_i")
+
+    # Get the function
+    inverse_fn <- tryCatch(
+      get(inverse_fn_name, envir = asNamespace("Momocs2")),
+      error = function(e) {
+        stop(sprintf("Inverse function '%s' not found for class '%s'",
+                     inverse_fn_name, coe_class))
+      }
+    )
+
+    # Call it on the coe column (it handles list-columns properly)
+    result[[shape_col]] <- inverse_fn(result[[coe_col]])
+  }
+
+  tibble::as_tibble(result)
 }

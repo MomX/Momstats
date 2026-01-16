@@ -55,11 +55,37 @@ reference:
   contents:
   - stat_pca
   - stat_lda
+  - stat_lm
+  - stat_kmeans
+  - stat_hclust
 
 - title: "Verbs"
   desc: "That applies to all stat_*"
   contents:
   - collect
+
+- title: "Misc"
+  desc: "Todo"
+  contents:
+  - collect
+  - collect.stat_hclust
+  - collect.stat_kmeans
+  - collect.stat_lm
+  - plot.stat_hclust
+  - plot.stat_kmeans
+  - plot.stat_lm
+  - predict.stat_lda
+  - predict.stat_pca
+  - transduce.stat_hclust
+  - transduce.stat_kmeans
+  - transduce.stat_lm
+
+- title: "Morphospaces"
+  desc: "Smart way to reconstruct shapes from coefficients encoded by stat_*"
+  contents:
+  - transduce
+
+
 
 - title: "Methods"
   desc: "to be reorganized"
@@ -68,7 +94,6 @@ reference:
   - collect.stat_pca
   - plot.stat_lda
   - plot.stat_pca
-
 
 - title: "Data"
   desc: "To play with"

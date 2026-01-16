@@ -7,31 +7,29 @@
 \format{
 A tibble with 40 rows and 5 variables:
 \itemize{
-\item \code{coo}: List-column of class \code{out} containing outline coordinates
+\item \code{coo}: List-column of class \code{c("out", "coo", "list")} containing outline coordinates
 (nx2 matrices). Outlines have been centered, scaled to unit centroid size,
 aligned using PCA, and rotated so the rightmost point is at 0 radians.
-\item \code{type}: Factor with 2 levels ("whisky", "beer") indicating bottle type.
-\item \code{dummy}: Factor with 1 level ("a") - a dummy grouping variable for examples.
-\item \code{length}: Numeric vector containing the length of each outline along the
-major inertia axis (computed before standardization).
 \item \code{coe}: List-column of class \code{c("eft", "coe", "list")} containing
 elliptic Fourier transform coefficients. Each element is a named numeric
 vector with 24 coefficients (6 harmonics × 4 coefficients: A, B, C, D)
 representing the shape in Fourier space.
+\item \code{type}: Factor with 2 levels ("whisky", "beer") indicating bottle type.
+\item \code{fake}: Factor with 1 level ("a") - a dummy grouping variable for examples.
+\item \code{price} : Numeric with random prices
+\item \code{length}: Numeric vector containing the length of each outline along the
+major inertia axis (computed before standardization, also random because it
+ultimately depends on the size of original images in pixels...)
 }
 }
 \source{
 Obtained with:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{bot \%>\%
-  dplyr::mutate(length = unlist(get_length(coo))) \%>\%
-  coo_center() \%>\%
-  coo_scale() \%>\%
-  coo_align() \%>\%
+  mutate(length=unlist(get_length(coo))) \%>\%
+  coo_center() \%>\% coo_scale() \%>\% coo_align() \%>\%
   coo_slide_direction("right") \%>\%
-  dplyr::mutate(coe = purrr::map(coo, eft, 6) \%>\%
-                      as_coe() \%>\%
-                      as_eft()) -> boteft
+  eft(6) \%>\% relocate(coe, .after=coo) -> boteft
 }\if{html}{\out{</div>}}
 }
 \usage{
@@ -41,36 +39,6 @@ boteft
 A dataset containing 40 bottle outlines that have been preprocessed and
 transformed using elliptic Fourier analysis. This dataset is used for
 demonstrating statistical methods in Momstats.
-}
-\details{
-This dataset was created from the original \code{bot} dataset through the
-following preprocessing pipeline:
-\enumerate{
-\item \strong{Length measurement}: Original outline lengths were computed and stored
-\item \strong{Centering}: Outlines translated to origin (centroid at 0,0)
-\item \strong{Scaling}: Outlines scaled to unit centroid size
-\item \strong{Alignment}: Outlines aligned along major inertia axis using PCA
-\item \strong{Rotation}: Outlines rotated so rightmost point is at 0 radians
-\item \strong{Fourier transform}: Elliptic Fourier analysis with 6 harmonics
-}
-
-The preprocessing standardizes size, position, and orientation, making the
-outlines directly comparable for statistical analysis. The elliptic Fourier
-coefficients provide a compact representation of shape that can be used with
-multivariate statistical methods like PCA, LDA, and clustering.
-\subsection{Fourier Coefficients}{
-
-Each coefficient vector contains 24 values organized as:
-\itemize{
-\item A1-A6: First harmonic coefficients (x-axis cosine terms)
-\item B1-B6: Second harmonic coefficients (x-axis sine terms)
-\item C1-C6: Third harmonic coefficients (y-axis cosine terms)
-\item D1-D6: Fourth harmonic coefficients (y-axis sine terms)
-}
-
-Higher harmonics capture finer shape details, while lower harmonics represent
-the overall shape structure.
-}
 }
 \examples{
 # View structure

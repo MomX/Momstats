@@ -32,9 +32,7 @@ An object of class \code{c("stat_pca", "momstats")} containing:
 \item \code{method}: "pca"
 \item \code{call}: The function call
 \item \code{formula}: Formula used (if any)
-\item \code{coe_cols}: Names of coefficient columns used
-\item \code{covariate_cols}: Names of covariate columns used (if any)
-\item \code{predictor_cols}: All predictor column names
+\item \code{predictor_cols}: All predictor column names (coe + others)
 \item \code{group_col}: NULL (no grouping for PCA)
 \item \code{variance_explained}: Proportion of variance explained by each PC
 \item \code{cumvar_explained}: Cumulative proportion of variance explained

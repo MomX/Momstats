@@ -24,10 +24,13 @@ RoxygenNote: 7.3.3
 Depends: 
     R (>= 3.5)
 Imports: 
+    ape,
     dplyr,
     magrittr,
     MASS,
     Momocs2,
-    rlang
+    rlang,
+    tibble,
+    tidyselect
 Remotes:
     MomX/Momocs2

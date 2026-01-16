@@ -16,17 +16,13 @@
 #'
 #' @return An object of class `c("stat_lda", "momstats")` containing:
 #' * `data`: Original tibble (unchanged)
-#' * `model`: List containing both the LDA model and CV predictions:
-#'   - All components from [MASS::lda()] (prior, counts, means, scaling, svd, etc.)
-#'   - `cv_class`: Cross-validated predicted classes
-#'   - `cv_posterior`: Cross-validated posterior probabilities
+#' * `model`: List containing both the LDA model and CV predictions
 #' * `method`: "lda"
 #' * `call`: The function call
 #' * `formula`: Formula used
 #' * `response_col`: Name of response column
-#' * `coe_cols`: Names of coefficient columns used
-#' * `covariate_cols`: Names of covariate columns used (if any)
-#' * `predictor_cols`: All predictor column names
+#' * `predictor_cols`: All predictor column names (coe + others)
+#' * `kept_predictor_cols`: Predictor columns after removing collinear
 #' * `n_groups`: Number of groups
 #' * `n_ld`: Number of discriminant functions
 #'
@@ -189,8 +185,6 @@ stat_lda <- function(data, formula, ...) {
     call = call,
     formula = formula_expr,
     response_col = response_col,
-    coe_cols = coe_cols,
-    covariate_cols = covariate_cols,
     predictor_cols = predictor_cols,
     kept_predictor_cols = kept_predictor_cols,  # After removing constant/collinear
     n_groups = n_groups,
@@ -202,7 +196,25 @@ stat_lda <- function(data, formula, ...) {
 }
 
 
-# Collect method ----
+# Helper functions ----
+
+#' Get coefficient columns from predictor columns
+#'
+#' @param data A tibble
+#' @param predictor_cols Character vector of predictor column names
+#'
+#' @return Character vector of coe column names
+#'
+#' @keywords internal
+#' @noRd
+get_coe_from_predictors <- function(data, predictor_cols) {
+  predictor_cols[
+    sapply(data[predictor_cols], function(x) "coe" %in% class(x))
+  ]
+}
+
+
+# Methods ----
 
 #' Collect predictions and LD scores from LDA results
 #'
@@ -281,7 +293,10 @@ collect.stat_lda <- function(x, data = NULL, retain = FALSE, fold = FALSE, ...) 
 
   # Otherwise, compute LD scores and add them
   # Predict on the same data to get LD scores
-  pred_matrix <- build_predictor_matrix(data, x$coe_cols, x$covariate_cols)
+  coe_cols <- get_coe_from_predictors(x$data, x$predictor_cols)
+  other_cols <- setdiff(x$predictor_cols, coe_cols)
+
+  pred_matrix <- build_predictor_matrix(data, coe_cols, other_cols)
 
   # Keep only columns that were used in training (after removing collinear)
   pred_matrix <- pred_matrix[, x$kept_predictor_cols, drop = FALSE]
@@ -345,20 +360,22 @@ collect.stat_lda <- function(x, data = NULL, retain = FALSE, fold = FALSE, ...) 
 }
 
 
-# Print method ----
-
 #' @export
 print.stat_lda <- function(x, ...) {
   cat("Linear Discriminant Analysis\n")
   cat("---------------------------------------\n")
 
+  # Identify coe columns from predictor_cols
+  coe_cols <- get_coe_from_predictors(x$data, x$predictor_cols)
+  other_cols <- setdiff(x$predictor_cols, coe_cols)
+
   # Build predictor description
   pred_parts <- character()
-  if (length(x$coe_cols) > 0) {
-    pred_parts <- c(pred_parts, paste(x$coe_cols, collapse = " + "))
+  if (length(coe_cols) > 0) {
+    pred_parts <- c(pred_parts, paste(coe_cols, collapse = " + "))
   }
-  if (length(x$covariate_cols) > 0) {
-    pred_parts <- c(pred_parts, paste(x$covariate_cols, collapse = " + "))
+  if (length(other_cols) > 0) {
+    pred_parts <- c(pred_parts, paste(other_cols, collapse = " + "))
   }
   pred_desc <- paste(pred_parts, collapse = " + ")
 
@@ -404,8 +421,6 @@ print.stat_lda <- function(x, ...) {
   invisible(x)
 }
 
-
-# Summary method ----
 
 #' @export
 summary.stat_lda <- function(object, ...) {
@@ -505,7 +520,8 @@ plot.stat_lda <- function(x, type = c("scores", "loadings"),
     plot_lda_loadings(x, lds, labels, cex)
   }
 
-  invisible(NULL)
+  # return the object to continue piping
+  invisible(x)
 }
 
 
@@ -515,7 +531,10 @@ plot_lda_scores <- function(x, lds, color_quo, labels_quo, chull, cex, legend) {
 
   # Get LD scores
   # Predict on same data to get LD scores
-  pred_matrix <- build_predictor_matrix(x$data, x$coe_cols, x$covariate_cols)
+  coe_cols <- get_coe_from_predictors(x$data, x$predictor_cols)
+  other_cols <- setdiff(x$predictor_cols, coe_cols)
+
+  pred_matrix <- build_predictor_matrix(x$data, coe_cols, other_cols)
 
   # Keep only columns that were used in training (after removing collinear)
   pred_matrix <- pred_matrix[, x$kept_predictor_cols, drop = FALSE]
@@ -531,7 +550,7 @@ plot_lda_scores <- function(x, lds, color_quo, labels_quo, chull, cex, legend) {
   # Binary classification (1 LD) - use boxplot
   if (x$n_ld == 1) {
     plot_lda_scores_1d(ld_scores[, 1], color_vals, label_vals, x, cex, legend)
-    return(invisible(NULL))
+    return(invisible(x))
   }
 
   # Multi-class (2+ LDs) - use scatter plot
@@ -592,6 +611,9 @@ plot_lda_scores <- function(x, lds, color_quo, labels_quo, chull, cex, legend) {
   if (legend && !is.null(color_vals)) {
     add_plot_legend(color_vals, cols, position = "topright")
   }
+
+  # pass the object so that we can continue the pipe
+  invisible(x)
 }
 
 
@@ -657,7 +679,7 @@ plot_lda_loadings <- function(x, lds, labels, cex) {
             col = ifelse(top_loadings > 0, "steelblue", "coral"))
     abline(h = 0)
 
-    return(invisible(NULL))
+    return(invisible(x))
   }
 
   # Multi-class - loading plot for 2 LDs
@@ -684,6 +706,372 @@ plot_lda_loadings <- function(x, lds, labels, cex) {
          labels = rownames(loadings),
          cex = cex, pos = 3)
   }
+  # pass the object so that we can continue the pipe
+  invisible(x)
 }
 
 
+# Plot helpers (shared with stat_pca) ----
+
+#' Add legend to plot
+#'
+#' @param color_vals Values used for coloring
+#' @param cols Colors used
+#' @param position Legend position
+#'
+#' @keywords internal
+#' @noRd
+add_plot_legend <- function(color_vals, cols, position = "topright") {
+
+  if (is.null(color_vals)) return(invisible())
+
+  if (is.factor(color_vals) || is.character(color_vals)) {
+    # Categorical legend
+    color_vals <- as.factor(color_vals)
+    lvls <- levels(color_vals)
+    # Get unique colors for each level
+    unique_cols <- rainbow(nlevels(color_vals), alpha = 0.5)
+
+    legend(position,
+           legend = lvls,
+           pch = 19,
+           col = unique_cols,
+           bty = "n",
+           cex = 0.8)
+
+  } else if (is.numeric(color_vals)) {
+    # Continuous legend - show gradient
+    range_vals <- range(color_vals, na.rm = TRUE)
+
+    # Create simple gradient legend
+    legend_text <- c(
+      sprintf("%.2f", range_vals[2]),  # max
+      "",
+      sprintf("%.2f", range_vals[1])   # min
+    )
+
+    col_ramp <- colorRampPalette(c("blue", "red"))
+    legend_cols <- col_ramp(3)
+
+    legend(position,
+           legend = legend_text,
+           pch = 15,
+           col = legend_cols,
+           bty = "n",
+           cex = 0.8,
+           title = "Value")
+  }
+}
+
+
+#' Draw convex hulls for groups
+#'
+#' @param x x coordinates
+#' @param y y coordinates
+#' @param groups Factor or character vector of group assignments
+#' @param cols Colors for each group
+#'
+#' @keywords internal
+#' @noRd
+draw_chulls <- function(x, y, groups, cols = NULL) {
+
+  if (is.null(groups)) return(invisible())
+
+  groups <- as.factor(groups)
+  lvls <- levels(groups)
+
+  if (is.null(cols)) {
+    cols <- rainbow(length(lvls), alpha = 1)
+  }
+
+  for (i in seq_along(lvls)) {
+    grp <- lvls[i]
+    idx <- which(groups == grp)
+
+    if (length(idx) < 3) next  # Need at least 3 points for hull
+
+    x_grp <- x[idx]
+    y_grp <- y[idx]
+
+    # Get convex hull
+    hull_idx <- grDevices::chull(x_grp, y_grp)
+    hull_idx <- c(hull_idx, hull_idx[1])  # Close the polygon
+
+    # Draw outline only (no fill)
+    lines(x_grp[hull_idx], y_grp[hull_idx],
+          col = cols[i],
+          lwd = 2)
+  }
+}
+
+
+# Predict method ----
+
+#' Predict method for LDA
+#'
+#' Predict class membership and discriminant scores for new data using a fitted LDA model.
+#'
+#' @param object A `stat_lda` object
+#' @param newdata A tibble with the same predictor columns as training data
+#' @param retain How many LDs to return:
+#'   * `FALSE` (default): No LD scores, only predictions
+#'   * `TRUE`: All LDs
+#'   * Integer (e.g., `2`): First N LDs
+#'   * Numeric 0-1 (e.g., `0.95`): LDs explaining this proportion of variance
+#' @param fold How to return LD scores (only if retain != FALSE):
+#'   * `FALSE` (default): Add as separate columns (`LD1`, `LD2`, ...)
+#'   * `TRUE`: Fold into single list-column named `"lda"`
+#'   * Character: Fold into single list-column with this name
+#' @param .collect Logical. Should predictions be added to `newdata` (TRUE, default)
+#'   or returned as a standalone tibble (FALSE)?
+#' @param ... Additional arguments (reserved)
+#'
+#' @return If `.collect = TRUE`, returns `newdata` with predictions added. If
+#'   `.collect = FALSE`, returns a tibble with identifier columns (non-predictors) and
+#'   predictions only. Always includes:
+#' * `pred`: Predicted class (factor)
+#' * `prob`: Posterior probability of predicted class (numeric)
+#' * `LD1`, `LD2`, ... : LD scores (if `retain` is not FALSE)
+#'
+#' @examples
+#' \dontrun{
+#' # Train LDA
+#' lda <- boteft %>% stat_lda(type)
+#'
+#' # Predict on new data
+#' new_preds <- predict(lda, new_data)
+#'
+#' # Pipe the model
+#' new_preds <- training %>%
+#'   stat_lda(type) %>%
+#'   predict(testing)
+#' }
+#'
+#' @export
+predict.stat_lda <- function(object, newdata, retain = FALSE, fold = FALSE,
+                             .collect = TRUE, ...) {
+
+  if (!is.data.frame(newdata)) {
+    stop("newdata must be a tibble or data frame")
+  }
+
+  # Identify coe columns from predictor_cols
+  coe_cols <- get_coe_from_predictors(object$data, object$predictor_cols)
+  other_cols <- setdiff(object$predictor_cols, coe_cols)
+
+  # Check all required columns present
+  missing_cols <- setdiff(object$predictor_cols, names(newdata))
+
+  if (length(missing_cols) > 0) {
+    stop(sprintf("Missing required columns in newdata: %s",
+                 paste(missing_cols, collapse = ", ")))
+  }
+
+  # Build predictor matrix
+  pred_matrix <- build_predictor_matrix(newdata, coe_cols, other_cols)
+
+  # Keep only columns used in training
+  if (!all(object$kept_predictor_cols %in% colnames(pred_matrix))) {
+    stop("Predictor structure doesn't match training data")
+  }
+
+  pred_matrix <- pred_matrix[, object$kept_predictor_cols, drop = FALSE]
+
+  # Predict using predict.lda
+  lda_pred <- predict(object$model, newdata = pred_matrix)
+
+  # Prepare output
+  if (.collect) {
+    result <- newdata
+  } else {
+    non_pred_cols <- setdiff(names(newdata), object$predictor_cols)
+    if (length(non_pred_cols) > 0) {
+      result <- newdata[, non_pred_cols, drop = FALSE]
+    } else {
+      result <- tibble::tibble(.rows = nrow(newdata))
+    }
+  }
+
+  # Add predictions
+  result$pred <- lda_pred$class
+  result$prob <- apply(lda_pred$posterior, 1, max)
+
+  # If retain is FALSE, we're done
+  if (isFALSE(retain)) {
+    return(result)
+  }
+
+  # Otherwise, add LD scores
+  ld_scores <- lda_pred$x
+
+  # Determine which LDs to retain
+  if (isTRUE(retain)) {
+    lds_to_keep <- seq_len(ncol(ld_scores))
+  } else if (retain >= 1) {
+    lds_to_keep <- seq_len(min(retain, ncol(ld_scores)))
+  } else if (retain > 0 && retain < 1) {
+    svd_vals <- object$model$svd
+    prop_var <- svd_vals^2 / sum(svd_vals^2)
+    cumvar <- cumsum(prop_var)
+    lds_to_keep <- seq_len(which(cumvar >= retain)[1])
+  } else {
+    stop("retain must be FALSE, TRUE, an integer >= 1, or a proportion between 0 and 1")
+  }
+
+  selected_scores <- ld_scores[, lds_to_keep, drop = FALSE]
+
+  # Add LD scores
+  if (isFALSE(fold)) {
+    for (i in seq_len(ncol(selected_scores))) {
+      col_name <- paste0("LD", lds_to_keep[i])
+      result[[col_name]] <- selected_scores[, i]
+    }
+  } else {
+    col_name <- if (isTRUE(fold)) "lda" else as.character(fold)
+
+    if (col_name %in% names(result)) {
+      stop(sprintf("Column '%s' already exists", col_name))
+    }
+
+    ld_list <- lapply(seq_len(nrow(selected_scores)), function(i) {
+      vec <- selected_scores[i, ]
+      names(vec) <- paste0("LD", lds_to_keep)
+      class(vec) <- c("lda", "coe", "numeric")
+      vec
+    })
+
+    class(ld_list) <- c("lda", "coe", "list")
+    result[[col_name]] <- ld_list
+  }
+
+  result
+}
+
+
+#' @rdname transduce
+#' @export
+transduce.stat_lda <- function(object, positions) {
+
+  if (!is.data.frame(positions)) {
+    stop("positions must be a tibble or data frame")
+  }
+
+  if (nrow(positions) == 0) {
+    stop("positions tibble is empty")
+  }
+
+  # Validate column names are LDs
+  pos_names <- names(positions)
+
+  if (!all(grepl("^LD[0-9]+$", pos_names))) {
+    stop("positions columns must be LD axes (e.g., LD1, LD2, ...)")
+  }
+
+  # Extract LD numbers and validate they exist
+  ld_nums <- as.integer(sub("LD", "", pos_names))
+  max_ld <- ncol(object$model$scaling)
+
+  if (any(ld_nums < 1 | ld_nums > max_ld)) {
+    stop(sprintf("LD numbers must be between 1 and %d", max_ld))
+  }
+
+  # Identify coe columns from predictor_cols by checking classes in data
+  coe_cols <- object$predictor_cols[
+    sapply(object$data[object$predictor_cols], function(x) "coe" %in% class(x))
+  ]
+
+  if (length(coe_cols) == 0) {
+    stop("No coe columns found in model predictors")
+  }
+
+  # Get coe classes
+  coe_classes <- sapply(object$data[coe_cols], function(col) class(col)[1])
+
+  # Reconstruct coefficients for each position
+  n_positions <- nrow(positions)
+
+  # Pre-allocate lists for coe columns
+  coe_lists <- vector("list", length(coe_cols))
+  names(coe_lists) <- coe_cols
+
+  for (i in seq_along(coe_cols)) {
+    coe_lists[[i]] <- vector("list", n_positions)
+  }
+
+  # Get LDA components
+  scaling <- object$model$scaling  # p × k matrix
+  grand_mean <- colMeans(object$model$means)  # Grand mean in predictor space
+
+  # Get the scaling matrix for the specified LDs only
+  scaling_subset <- scaling[, ld_nums, drop = FALSE]
+
+  # Compute pseudoinverse of the (subset) scaling matrix
+  scaling_pinv <- MASS::ginv(scaling_subset)  # k × p
+
+  # For each position (row in positions tibble)
+  for (i in seq_len(n_positions)) {
+
+    # Get LD scores for this position as a row vector
+    ld_scores <- as.numeric(positions[i, ])
+
+    # Reconstruct: X = Z %*% W_pinv + grand_mean
+    # ld_scores is 1 × k, scaling_pinv is k × p
+    reconstructed <- as.vector(ld_scores %*% scaling_pinv) + grand_mean
+
+    # Split reconstructed predictors back into coe columns
+    col_start <- 1
+    for (j in seq_along(coe_cols)) {
+      # Get number of coefficients for this coe column
+      n_coe <- nrow(object$model$scaling)
+      col_end <- n_coe
+
+      # Extract coefficients
+      coe_vec <- reconstructed[col_start:col_end]
+
+      # Get harmonic names from kept_predictor_cols
+      names(coe_vec) <- object$kept_predictor_cols
+
+      # Add classes
+      class(coe_vec) <- c(coe_classes[j], "coe", "numeric")
+
+      # Store
+      coe_lists[[j]][[i]] <- coe_vec
+
+      col_start <- col_end + 1
+    }
+  }
+
+  # Build result tibble: positions + coe columns
+  result <- positions
+
+  # Add coe columns
+  for (j in seq_along(coe_cols)) {
+    coe_col <- coe_cols[j]
+    class(coe_lists[[j]]) <- c(coe_classes[j], "coe", "list")
+    result[[coe_col]] <- coe_lists[[j]]
+  }
+
+  # Add inverse columns by calling the proper inverse function
+  for (j in seq_along(coe_cols)) {
+    coe_col <- coe_cols[j]
+    shape_col <- paste0(coe_col, "_i")
+    coe_class <- coe_classes[j]
+
+    # Get the inverse function name
+    inverse_fn_name <- paste0(coe_class, "_i")
+
+    # Get the function
+    inverse_fn <- tryCatch(
+      get(inverse_fn_name, envir = asNamespace("Momocs2")),
+      error = function(e) {
+        stop(sprintf("Inverse function '%s' not found for class '%s'",
+                     inverse_fn_name, coe_class))
+      }
+    )
+
+    # Call it on the coe column
+    result[[shape_col]] <- inverse_fn(result[[coe_col]])
+  }
+
+  tibble::as_tibble(result)
+}

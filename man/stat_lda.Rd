@@ -24,19 +24,13 @@ stat_lda(data, formula, ...)
 An object of class \code{c("stat_lda", "momstats")} containing:
 \itemize{
 \item \code{data}: Original tibble (unchanged)
-\item \code{model}: List containing both the LDA model and CV predictions:
-\itemize{
-\item All components from \code{\link[MASS:lda]{MASS::lda()}} (prior, counts, means, scaling, svd, etc.)
-\item \code{cv_class}: Cross-validated predicted classes
-\item \code{cv_posterior}: Cross-validated posterior probabilities
-}
+\item \code{model}: List containing both the LDA model and CV predictions
 \item \code{method}: "lda"
 \item \code{call}: The function call
 \item \code{formula}: Formula used
 \item \code{response_col}: Name of response column
-\item \code{coe_cols}: Names of coefficient columns used
-\item \code{covariate_cols}: Names of covariate columns used (if any)
-\item \code{predictor_cols}: All predictor column names
+\item \code{predictor_cols}: All predictor column names (coe + others)
+\item \code{kept_predictor_cols}: Predictor columns after removing collinear
 \item \code{n_groups}: Number of groups
 \item \code{n_ld}: Number of discriminant functions
 }

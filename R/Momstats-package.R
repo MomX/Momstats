@@ -6,8 +6,9 @@
 # import section ----
 #' @importFrom grDevices colorRampPalette rainbow rgb
 #' @importFrom graphics abline arrows barplot boxplot legend lines points polygon text
-#' @importFrom stats predict
-#' @importFrom rlang enquo quo_is_null quo_get_expr is_call as_name f_rhs eval_tidy
+#' @importFrom stats predict as.formula coef fitted lm model.matrix
+#' @importFrom stats qqline qqnorm rect.hclust residuals
+#' @importFrom rlang := enquo quo_is_null quo_get_expr is_call as_name f_rhs eval_tidy
 NULL
 
 # Reexports from Momocs2 ----
@@ -50,5 +51,6 @@ Momocs2::get_all_coe_cols
 
 
 ## usethis namespace: start
+#' @importFrom tibble tibble
 ## usethis namespace: end
 NULL
