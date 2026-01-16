@@ -8,6 +8,12 @@ Core functions
   : Principal Component Analysis for morphometric data
 - [`stat_lda()`](https://momx.github.io/Momstats/reference/stat_lda.md)
   : Linear Discriminant Analysis for morphometric data
+- [`stat_lm()`](https://momx.github.io/Momstats/reference/stat_lm.md) :
+  Linear Model for morphometric data
+- [`stat_kmeans()`](https://momx.github.io/Momstats/reference/stat_kmeans.md)
+  : K-means clustering for morphometric data
+- [`stat_hclust()`](https://momx.github.io/Momstats/reference/stat_hclust.md)
+  : Hierarchical clustering for morphometric data
 
 ## Verbs
 
@@ -15,6 +21,42 @@ That applies to all stat\_\*
 
 - [`collect()`](https://momx.github.io/Momstats/reference/collect.md) :
   Collect results from statistical analyses
+
+## Misc
+
+Todo
+
+- [`collect()`](https://momx.github.io/Momstats/reference/collect.md) :
+  Collect results from statistical analyses
+- [`collect(`*`<stat_hclust>`*`)`](https://momx.github.io/Momstats/reference/collect.stat_hclust.md)
+  : Collect cluster assignments from hierarchical clustering
+- [`collect(`*`<stat_kmeans>`*`)`](https://momx.github.io/Momstats/reference/collect.stat_kmeans.md)
+  : Collect cluster assignments from k-means
+- [`collect(`*`<stat_lm>`*`)`](https://momx.github.io/Momstats/reference/collect.stat_lm.md)
+  : Collect fitted values from linear model
+- [`plot(`*`<stat_hclust>`*`)`](https://momx.github.io/Momstats/reference/plot.stat_hclust.md)
+  : Plot hierarchical clustering tree
+- [`plot(`*`<stat_kmeans>`*`)`](https://momx.github.io/Momstats/reference/plot.stat_kmeans.md)
+  : Plot k-means clustering results
+- [`plot(`*`<stat_lm>`*`)`](https://momx.github.io/Momstats/reference/plot.stat_lm.md)
+  : Plot linear model results
+- [`predict(`*`<stat_lda>`*`)`](https://momx.github.io/Momstats/reference/predict.stat_lda.md)
+  : Predict method for LDA
+- [`predict(`*`<stat_pca>`*`)`](https://momx.github.io/Momstats/reference/predict.stat_pca.md)
+  : Predict method for PCA
+- [`transduce(`*`<stat_hclust>`*`)`](https://momx.github.io/Momstats/reference/transduce.stat_hclust.md)
+  : Transduce hierarchical clustering nodes to shapes
+- [`transduce(`*`<stat_kmeans>`*`)`](https://momx.github.io/Momstats/reference/transduce.stat_kmeans.md)
+  : Transduce k-means cluster centers to shapes
+- [`transduce(`*`<stat_lm>`*`)`](https://momx.github.io/Momstats/reference/transduce.stat_lm.md)
+  : Transduce linear model positions to shapes
+
+## Morphospaces
+
+Smart way to reconstruct shapes from coefficients encoded by stat\_\*
+
+- [`transduce()`](https://momx.github.io/Momstats/reference/transduce.md)
+  : Transduce model positions to coefficients and shapes
 
 ## Methods
 

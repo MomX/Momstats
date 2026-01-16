@@ -14,76 +14,38 @@ boteft
 
 A tibble with 40 rows and 5 variables:
 
-- `coo`: List-column of class `out` containing outline coordinates (nx2
-  matrices). Outlines have been centered, scaled to unit centroid size,
-  aligned using PCA, and rotated so the rightmost point is at 0 radians.
-
-- `type`: Factor with 2 levels ("whisky", "beer") indicating bottle
-  type.
-
-- `dummy`: Factor with 1 level ("a") - a dummy grouping variable for
-  examples.
-
-- `length`: Numeric vector containing the length of each outline along
-  the major inertia axis (computed before standardization).
+- `coo`: List-column of class `c("out", "coo", "list")` containing
+  outline coordinates (nx2 matrices). Outlines have been centered,
+  scaled to unit centroid size, aligned using PCA, and rotated so the
+  rightmost point is at 0 radians.
 
 - `coe`: List-column of class `c("eft", "coe", "list")` containing
   elliptic Fourier transform coefficients. Each element is a named
   numeric vector with 24 coefficients (6 harmonics × 4 coefficients: A,
   B, C, D) representing the shape in Fourier space.
 
+- `type`: Factor with 2 levels ("whisky", "beer") indicating bottle
+  type.
+
+- `fake`: Factor with 1 level ("a") - a dummy grouping variable for
+  examples.
+
+- `price` : Numeric with random prices
+
+- `length`: Numeric vector containing the length of each outline along
+  the major inertia axis (computed before standardization, also random
+  because it ultimately depends on the size of original images in
+  pixels...)
+
 ## Source
 
 Obtained with:
 
     bot %>%
-      dplyr::mutate(length = unlist(get_length(coo))) %>%
-      coo_center() %>%
-      coo_scale() %>%
-      coo_align() %>%
+      mutate(length=unlist(get_length(coo))) %>%
+      coo_center() %>% coo_scale() %>% coo_align() %>%
       coo_slide_direction("right") %>%
-      dplyr::mutate(coe = purrr::map(coo, eft, 6) %>%
-                          as_coe() %>%
-                          as_eft()) -> boteft
-
-## Details
-
-This dataset was created from the original `bot` dataset through the
-following preprocessing pipeline:
-
-1.  **Length measurement**: Original outline lengths were computed and
-    stored
-
-2.  **Centering**: Outlines translated to origin (centroid at 0,0)
-
-3.  **Scaling**: Outlines scaled to unit centroid size
-
-4.  **Alignment**: Outlines aligned along major inertia axis using PCA
-
-5.  **Rotation**: Outlines rotated so rightmost point is at 0 radians
-
-6.  **Fourier transform**: Elliptic Fourier analysis with 6 harmonics
-
-The preprocessing standardizes size, position, and orientation, making
-the outlines directly comparable for statistical analysis. The elliptic
-Fourier coefficients provide a compact representation of shape that can
-be used with multivariate statistical methods like PCA, LDA, and
-clustering.
-
-### Fourier Coefficients
-
-Each coefficient vector contains 24 values organized as:
-
-- A1-A6: First harmonic coefficients (x-axis cosine terms)
-
-- B1-B6: Second harmonic coefficients (x-axis sine terms)
-
-- C1-C6: Third harmonic coefficients (y-axis cosine terms)
-
-- D1-D6: Fourth harmonic coefficients (y-axis sine terms)
-
-Higher harmonics capture finer shape details, while lower harmonics
-represent the overall shape structure.
+      eft(6) %>% relocate(coe, .after=coo) -> boteft
 
 ## See also
 
@@ -101,19 +63,19 @@ represent the overall shape structure.
 ``` r
 # View structure
 boteft
-#> # A tibble: 40 × 5
-#>    coo       type   dummy length coe  
-#>    <out>     <fct>  <fct>  <dbl> <eft>
-#>  1 (138 x 2) whisky a      1088. <24> 
-#>  2 (168 x 2) whisky a       994. <24> 
-#>  3 (189 x 2) whisky a       644. <24> 
-#>  4 (129 x 2) whisky a       806. <24> 
-#>  5 (152 x 2) whisky a       886. <24> 
-#>  6 (161 x 2) whisky a       606. <24> 
-#>  7 (124 x 2) whisky a       865. <24> 
-#>  8 (126 x 2) whisky a       765. <24> 
-#>  9 (183 x 2) whisky a       742. <24> 
-#> 10 (193 x 2) whisky a      1048. <24> 
+#> # A tibble: 40 × 7
+#>    id           coo       coe   type   fake  price length
+#>    <chr>        <out>     <eft> <fct>  <fct> <dbl>  <dbl>
+#>  1 brahma       (138 x 2) <24>  whisky a       3    1088.
+#>  2 caney        (168 x 2) <24>  whisky a       1.2   994.
+#>  3 chimay       (189 x 2) <24>  whisky a       3.8   644.
+#>  4 corona       (129 x 2) <24>  whisky a       2.6   806.
+#>  5 deusventrue  (152 x 2) <24>  whisky a       1.1   886.
+#>  6 duvel        (161 x 2) <24>  whisky a       3.1   606.
+#>  7 franziskaner (124 x 2) <24>  whisky a       2.6   865.
+#>  8 grimbergen   (126 x 2) <24>  whisky a       2.9   765.
+#>  9 guiness      (183 x 2) <24>  whisky a       1.2   742.
+#> 10 hoegardeen   (193 x 2) <24>  whisky a       3.6  1048.
 #> # ℹ 30 more rows
 
 # Examine coefficient structure

@@ -72,55 +72,28 @@ demonstrating statistical methods in Momstats.</p>
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>A tibble with 40 rows and 5 variables:</p><ul><li><p><code>coo</code>: List-column of class <code>out</code> containing outline coordinates
+    <p>A tibble with 40 rows and 5 variables:</p><ul><li><p><code>coo</code>: List-column of class <code>c("out", "coo", "list")</code> containing outline coordinates
 (nx2 matrices). Outlines have been centered, scaled to unit centroid size,
 aligned using PCA, and rotated so the rightmost point is at 0 radians.</p></li>
-<li><p><code>type</code>: Factor with 2 levels ("whisky", "beer") indicating bottle type.</p></li>
-<li><p><code>dummy</code>: Factor with 1 level ("a") - a dummy grouping variable for examples.</p></li>
-<li><p><code>length</code>: Numeric vector containing the length of each outline along the
-major inertia axis (computed before standardization).</p></li>
 <li><p><code>coe</code>: List-column of class <code>c("eft", "coe", "list")</code> containing
 elliptic Fourier transform coefficients. Each element is a named numeric
 vector with 24 coefficients (6 harmonics × 4 coefficients: A, B, C, D)
 representing the shape in Fourier space.</p></li>
+<li><p><code>type</code>: Factor with 2 levels ("whisky", "beer") indicating bottle type.</p></li>
+<li><p><code>fake</code>: Factor with 1 level ("a") - a dummy grouping variable for examples.</p></li>
+<li><p><code>price</code> : Numeric with random prices</p></li>
+<li><p><code>length</code>: Numeric vector containing the length of each outline along the
+major inertia axis (computed before standardization, also random because it
+ultimately depends on the size of original images in pixels...)</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="source">Source<a class="anchor" aria-label="anchor" href="#source"></a></h2>
     <p>Obtained with:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">bot</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu">get_length</span><span class="op">(</span><span class="va">coo</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">coo_center</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">coo_scale</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">coo_align</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>length<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu">get_length</span><span class="op">(</span><span class="va">coo</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">coo_center</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">coo_scale</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">coo_align</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">coo_slide_direction</span><span class="op">(</span><span class="st">"right"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>coe <span class="op">=</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">coo</span>, <span class="va">eft</span>, <span class="fl">6</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>                      <span class="fu">as_coe</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>                      <span class="fu">as_eft</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">boteft</span></span></code></pre><p></p></div>
-    </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This dataset was created from the original <code>bot</code> dataset through the
-following preprocessing pipeline:</p><ol><li><p><strong>Length measurement</strong>: Original outline lengths were computed and stored</p></li>
-<li><p><strong>Centering</strong>: Outlines translated to origin (centroid at 0,0)</p></li>
-<li><p><strong>Scaling</strong>: Outlines scaled to unit centroid size</p></li>
-<li><p><strong>Alignment</strong>: Outlines aligned along major inertia axis using PCA</p></li>
-<li><p><strong>Rotation</strong>: Outlines rotated so rightmost point is at 0 radians</p></li>
-<li><p><strong>Fourier transform</strong>: Elliptic Fourier analysis with 6 harmonics</p></li>
-</ol><p>The preprocessing standardizes size, position, and orientation, making the
-outlines directly comparable for statistical analysis. The elliptic Fourier
-coefficients provide a compact representation of shape that can be used with
-multivariate statistical methods like PCA, LDA, and clustering.</p><div class="section">
-<h3 id="fourier-coefficients">Fourier Coefficients<a class="anchor" aria-label="anchor" href="#fourier-coefficients"></a></h3>
-
-
-<p>Each coefficient vector contains 24 values organized as:</p><ul><li><p>A1-A6: First harmonic coefficients (x-axis cosine terms)</p></li>
-<li><p>B1-B6: Second harmonic coefficients (x-axis sine terms)</p></li>
-<li><p>C1-C6: Third harmonic coefficients (y-axis cosine terms)</p></li>
-<li><p>D1-D6: Fourth harmonic coefficients (y-axis sine terms)</p></li>
-</ul><p>Higher harmonics capture finer shape details, while lower harmonics represent
-the overall shape structure.</p>
-</div>
-
+<span>  <span class="fu">eft</span><span class="op">(</span><span class="fl">6</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">relocate</span><span class="op">(</span><span class="va">coe</span>, .after<span class="op">=</span><span class="va">coo</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">boteft</span></span></code></pre><p></p></div>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -135,19 +108,19 @@ the overall shape structure.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># View structure</span></span></span>
 <span class="r-in"><span><span class="va">boteft</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 40 × 5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    coo       type   dummy length coe  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;out&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;eft&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> <span style="color: #0000BB;">(138 x 2)</span> whisky a      <span style="text-decoration: underline;">1</span>088. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> <span style="color: #0000BB;">(168 x 2)</span> whisky a       994. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> <span style="color: #0000BB;">(189 x 2)</span> whisky a       644. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> <span style="color: #0000BB;">(129 x 2)</span> whisky a       806. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> <span style="color: #0000BB;">(152 x 2)</span> whisky a       886. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> <span style="color: #0000BB;">(161 x 2)</span> whisky a       606. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> <span style="color: #0000BB;">(124 x 2)</span> whisky a       865. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> <span style="color: #0000BB;">(126 x 2)</span> whisky a       765. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> <span style="color: #0000BB;">(183 x 2)</span> whisky a       742. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> <span style="color: #0000BB;">(193 x 2)</span> whisky a      <span style="text-decoration: underline;">1</span>048. <span style="color: #00BBBB;">&lt;24&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 40 × 7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    id           coo       coe   type   fake  price length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;out&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;eft&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> brahma       <span style="color: #0000BB;">(138 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       3    <span style="text-decoration: underline;">1</span>088.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> caney        <span style="color: #0000BB;">(168 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       1.2   994.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> chimay       <span style="color: #0000BB;">(189 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       3.8   644.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> corona       <span style="color: #0000BB;">(129 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       2.6   806.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> deusventrue  <span style="color: #0000BB;">(152 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       1.1   886.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> duvel        <span style="color: #0000BB;">(161 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       3.1   606.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> franziskaner <span style="color: #0000BB;">(124 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       2.6   865.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> grimbergen   <span style="color: #0000BB;">(126 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       2.9   765.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> guiness      <span style="color: #0000BB;">(183 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       1.2   742.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> hoegardeen   <span style="color: #0000BB;">(193 x 2)</span> <span style="color: #00BBBB;">&lt;24&gt;</span>  whisky a       3.6  <span style="text-decoration: underline;">1</span>048.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 30 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Examine coefficient structure</span></span></span>

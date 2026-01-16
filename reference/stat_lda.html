@@ -91,17 +91,13 @@ bare response names (auto-detects all coe columns) and full formula syntax.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>c("stat_lda", "momstats")</code> containing:</p><ul><li><p><code>data</code>: Original tibble (unchanged)</p></li>
-<li><p><code>model</code>: List containing both the LDA model and CV predictions:</p><ul><li><p>All components from <code><a href="https://rdrr.io/pkg/MASS/man/lda.html" class="external-link">MASS::lda()</a></code> (prior, counts, means, scaling, svd, etc.)</p></li>
-<li><p><code>cv_class</code>: Cross-validated predicted classes</p></li>
-<li><p><code>cv_posterior</code>: Cross-validated posterior probabilities</p></li>
-</ul></li>
+<li><p><code>model</code>: List containing both the LDA model and CV predictions</p></li>
 <li><p><code>method</code>: "lda"</p></li>
 <li><p><code>call</code>: The function call</p></li>
 <li><p><code>formula</code>: Formula used</p></li>
 <li><p><code>response_col</code>: Name of response column</p></li>
-<li><p><code>coe_cols</code>: Names of coefficient columns used</p></li>
-<li><p><code>covariate_cols</code>: Names of covariate columns used (if any)</p></li>
-<li><p><code>predictor_cols</code>: All predictor column names</p></li>
+<li><p><code>predictor_cols</code>: All predictor column names (coe + others)</p></li>
+<li><p><code>kept_predictor_cols</code>: Predictor columns after removing collinear</p></li>
 <li><p><code>n_groups</code>: Number of groups</p></li>
 <li><p><code>n_ld</code>: Number of discriminant functions</p></li>
 </ul></div>

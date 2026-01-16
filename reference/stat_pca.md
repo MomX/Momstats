@@ -55,11 +55,7 @@ An object of class `c("stat_pca", "momstats")` containing:
 
 - `formula`: Formula used (if any)
 
-- `coe_cols`: Names of coefficient columns used
-
-- `covariate_cols`: Names of covariate columns used (if any)
-
-- `predictor_cols`: All predictor column names
+- `predictor_cols`: All predictor column names (coe + others)
 
 - `group_col`: NULL (no grouping for PCA)
 

@@ -41,15 +41,7 @@ An object of class `c("stat_lda", "momstats")` containing:
 
 - `data`: Original tibble (unchanged)
 
-- `model`: List containing both the LDA model and CV predictions:
-
-  - All components from
-    [`MASS::lda()`](https://rdrr.io/pkg/MASS/man/lda.html) (prior,
-    counts, means, scaling, svd, etc.)
-
-  - `cv_class`: Cross-validated predicted classes
-
-  - `cv_posterior`: Cross-validated posterior probabilities
+- `model`: List containing both the LDA model and CV predictions
 
 - `method`: "lda"
 
@@ -59,11 +51,9 @@ An object of class `c("stat_lda", "momstats")` containing:
 
 - `response_col`: Name of response column
 
-- `coe_cols`: Names of coefficient columns used
+- `predictor_cols`: All predictor column names (coe + others)
 
-- `covariate_cols`: Names of covariate columns used (if any)
-
-- `predictor_cols`: All predictor column names
+- `kept_predictor_cols`: Predictor columns after removing collinear
 
 - `n_groups`: Number of groups
 
