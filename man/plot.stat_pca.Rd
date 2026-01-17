@@ -8,6 +8,8 @@
   x,
   type = c("scores", "scree", "loadings"),
   pcs = c(1, 2),
+  extent = 1,
+  morphospace = "grid",
   color = NULL,
   labels = NULL,
   chull = TRUE,
@@ -20,58 +22,28 @@
 \arguments{
 \item{x}{A \code{stat_pca} object}
 
-\item{type}{Character. Type of plot:
-\itemize{
-\item \code{"scores"}: PC score plot (default)
-\item \code{"scree"}: Variance explained by each PC
-\item \code{"loadings"}: Loading plot for first two PCs
-}}
+\item{type}{Character. Type of plot}
 
-\item{pcs}{Integer vector of length 2. Which PCs to plot for score/loading plots.
-Default is \code{c(1, 2)}.}
+\item{pcs}{Integer vector of length 2. Which PCs to plot}
 
-\item{color}{Column name (bare or quoted) for coloring points in score plot.}
+\item{extent}{Numeric. Plot extent factor (< 1 = zoom in, > 1 = zoom out)}
 
-\item{labels}{Column name (bare or quoted) for text labels in score plot.
-For loadings, logical: should variable names be shown? Default \code{TRUE}.}
+\item{morphospace}{Character or FALSE. Morphospace type: "grid", "range", "axes", "centroids", FALSE}
 
-\item{chull}{Logical. Draw convex hulls around groups? Only works when \code{color}
-is a factor. Default \code{TRUE}.}
+\item{color}{Column name for coloring points}
 
-\item{n_pcs}{Integer. For scree plot, how many PCs to show? Default is all.}
+\item{labels}{Column name for text labels}
 
-\item{cex}{Numeric. Character expansion for labels. Default is 0.7.}
+\item{chull}{Logical. Draw convex hulls?}
 
-\item{legend}{Logical. Show legend for colors? Default \code{TRUE}.}
+\item{n_pcs}{Integer. For scree plot}
 
-\item{...}{Additional arguments (reserved for future use)}
-}
-\value{
-NULL (invisibly). Draws plot as side effect.
+\item{cex}{Numeric. Character expansion}
+
+\item{legend}{Logical. Show legend?}
+
+\item{...}{Passed to morphospace functions (n, nrow, ncol, template, lwd, col)}
 }
 \description{
-Visualize PCA results with score plots, scree plots, or loading plots.
-}
-\examples{
-\dontrun{
-pca <- boteft \%>\% stat_pca()
-
-# Score plot (default)
-plot(pca)
-plot(pca, color = type)
-plot(pca, labels = type, color = type)
-plot(pca, color = type, chull = TRUE)
-
-# Different PCs
-plot(pca, pcs = c(2, 3))
-
-# Scree plot
-plot(pca, type = "scree")
-plot(pca, type = "scree", n_pcs = 10)  # First 10 only
-
-# Loading plot
-plot(pca, type = "loadings")
-plot(pca, type = "loadings", labels = FALSE)
-}
-
+Plot PCA results
 }

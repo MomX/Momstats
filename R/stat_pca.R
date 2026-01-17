@@ -1,4 +1,4 @@
-# stat_pca.R
+# stat_pca -----
 
 #' Principal Component Analysis for morphometric data
 #'
@@ -379,69 +379,49 @@ print.stat_pca <- function(x, ...) {
   invisible(x)
 }
 
-
-# Plot method ----
-
+# morphospace.R
+# Morphospace visualization helpers for Momocs2
+# plot -----
 #' Plot PCA results
 #'
-#' Visualize PCA results with score plots, scree plots, or loading plots.
-#'
 #' @param x A `stat_pca` object
-#' @param type Character. Type of plot:
-#'   * `"scores"`: PC score plot (default)
-#'   * `"scree"`: Variance explained by each PC
-#'   * `"loadings"`: Loading plot for first two PCs
-#' @param pcs Integer vector of length 2. Which PCs to plot for score/loading plots.
-#'   Default is `c(1, 2)`.
-#' @param color Column name (bare or quoted) for coloring points in score plot.
-#' @param labels Column name (bare or quoted) for text labels in score plot.
-#'   For loadings, logical: should variable names be shown? Default `TRUE`.
-#' @param chull Logical. Draw convex hulls around groups? Only works when `color`
-#'   is a factor. Default `TRUE`.
-#' @param n_pcs Integer. For scree plot, how many PCs to show? Default is all.
-#' @param cex Numeric. Character expansion for labels. Default is 0.7.
-#' @param legend Logical. Show legend for colors? Default `TRUE`.
-#' @param ... Additional arguments (reserved for future use)
-#'
-#' @return NULL (invisibly). Draws plot as side effect.
-#'
-#' @examples
-#' \dontrun{
-#' pca <- boteft %>% stat_pca()
-#'
-#' # Score plot (default)
-#' plot(pca)
-#' plot(pca, color = type)
-#' plot(pca, labels = type, color = type)
-#' plot(pca, color = type, chull = TRUE)
-#'
-#' # Different PCs
-#' plot(pca, pcs = c(2, 3))
-#'
-#' # Scree plot
-#' plot(pca, type = "scree")
-#' plot(pca, type = "scree", n_pcs = 10)  # First 10 only
-#'
-#' # Loading plot
-#' plot(pca, type = "loadings")
-#' plot(pca, type = "loadings", labels = FALSE)
-#' }
+#' @param type Character. Type of plot
+#' @param pcs Integer vector of length 2. Which PCs to plot
+#' @param extent Numeric. Plot extent factor (< 1 = zoom in, > 1 = zoom out)
+#' @param morphospace Character or FALSE. Morphospace type: "grid", "range", "axes", "centroids", FALSE
+#' @param color Column name for coloring points
+#' @param labels Column name for text labels
+#' @param chull Logical. Draw convex hulls?
+#' @param n_pcs Integer. For scree plot
+#' @param cex Numeric. Character expansion
+#' @param legend Logical. Show legend?
+#' @param ... Passed to morphospace functions (n, nrow, ncol, template, lwd, col)
 #'
 #' @export
 plot.stat_pca <- function(x, type = c("scores", "scree", "loadings"),
-                          pcs = c(1, 2), color = NULL, labels = NULL,
-                          chull = TRUE, n_pcs = NULL, cex = 0.7,
-                          legend = TRUE, ...) {
+                          pcs = c(1, 2),
+                          extent = 1.0,
+                          morphospace = "grid",
+                          color = NULL,
+                          labels = NULL,
+                          chull = TRUE,
+                          n_pcs = NULL,
+                          cex = 0.7,
+                          legend = TRUE,
+                          ...) {
 
   type <- match.arg(type)
 
   if (type == "scree") {
     plot_pca_scree(x, n_pcs)
+
   } else if (type == "scores") {
-    plot_pca_scores(x, pcs, rlang::enquo(color), rlang::enquo(labels),
+    # Simple call with no parameter passing
+    plot_pca_scores(x, pcs, extent, morphospace,
+                    rlang::enquo(color), rlang::enquo(labels),
                     chull, cex, legend)
+
   } else if (type == "loadings") {
-    # Default labels to TRUE for loadings
     if (is.null(labels)) labels <- TRUE
     plot_pca_loadings(x, pcs, labels, cex)
   }
@@ -452,12 +432,109 @@ plot.stat_pca <- function(x, type = c("scores", "scree", "loadings"),
 
 #' @keywords internal
 #' @noRd
-plot_pca_scree <- function(x, n_pcs = NULL) {
+plot_pca_scores <- function(x, pcs, extent, morphospace,
+                            color_quo, labels_quo,
+                            chull, cex, legend) {
 
+  pc_scores <- x$model$x
+  pc1 <- pc_scores[, pcs[1]]
+  pc2 <- pc_scores[, pcs[2]]
+
+  var1 <- round(x$variance_explained[pcs[1]] * 100, 1)
+  var2 <- round(x$variance_explained[pcs[2]] * 100, 1)
+
+  # Get color and label values
+  color_vals <- get_plot_variable(x$data, color_quo)
+  label_vals <- get_plot_variable(x$data, labels_quo)
+
+  # Determine colors
+  if (!is.null(color_vals)) {
+    if (is.factor(color_vals) || is.character(color_vals)) {
+      color_vals <- as.factor(color_vals)
+      cols <- rainbow(nlevels(color_vals), alpha = 0.5)[as.integer(color_vals)]
+    } else if (is.numeric(color_vals)) {
+      col_ramp <- colorRampPalette(c("blue", "red"))
+      color_indices <- cut(color_vals, breaks = 100, labels = FALSE)
+      cols <- col_ramp(100)[color_indices]
+      cols <- paste0(cols, "80")
+    } else {
+      cols <- rgb(0, 0, 0, 0.5)
+    }
+  } else {
+    cols <- rgb(0, 0, 0, 0.5)
+  }
+
+  # Calculate plot limits with extent
+  pc1_range <- range(pc1)
+  pc2_range <- range(pc2)
+
+  pc1_center <- mean(pc1_range)
+  pc2_center <- mean(pc2_range)
+
+  pc1_half_width <- diff(pc1_range) / 2 * extent
+  pc2_half_width <- diff(pc2_range) / 2 * extent
+
+  xlim <- c(pc1_center - pc1_half_width, pc1_center + pc1_half_width)
+  ylim <- c(pc2_center - pc2_half_width, pc2_center + pc2_half_width)
+
+  # Create empty plot
+  plot(pc1, pc2,
+       xlab = sprintf("PC%d (%s%%)", pcs[1], var1),
+       ylab = sprintf("PC%d (%s%%)", pcs[2], var2),
+       main = "PCA Score Plot",
+       type = "n",
+       asp = 1,
+       las = 1,
+       xlim = xlim,
+       ylim = ylim)
+
+  abline(h = 0, v = 0, col = "gray", lty = 2)
+
+  # Draw morphospace FIRST (background layer)
+  if (!is.null(morphospace) && morphospace != FALSE) {
+    if (morphospace == "axes") {
+      morphospace_axes(x, pcs = pcs, draw = TRUE)
+    } else if (morphospace == "grid") {
+      morphospace_grid(x, pcs = pcs, draw = TRUE)
+    } else if (morphospace == "range") {
+      morphospace_range(x, pcs = pcs, draw = TRUE)
+    } else if (morphospace == "centroids") {
+      if (!is.null(color_vals)) {
+        morphospace_centroids(x, group_vals = color_vals, draw = TRUE)
+      } else {
+        warning("morphospace='centroids' requires color argument")
+      }
+    }
+  }
+
+  # Convex hulls (middle layer)
+  if (chull && !is.null(color_vals) &&
+      (is.factor(color_vals) || is.character(color_vals))) {
+    draw_chulls(pc1, pc2, color_vals,
+                rainbow(nlevels(as.factor(color_vals)), alpha = 1))
+  }
+
+  # Points (top layer)
+  points(pc1, pc2, pch = 19, col = cols)
+
+  # Labels
+  if (!is.null(label_vals)) {
+    text(pc1, pc2, labels = label_vals, cex = cex, pos = 3)
+  }
+
+  # Legend
+  if (legend && !is.null(color_vals)) {
+    add_plot_legend(color_vals, cols, position = "topright")
+  }
+}
+
+
+#' @keywords internal
+#' @noRd
+plot_pca_scree <- function(x, n_pcs = NULL) {
   var_pct <- x$variance_explained * 100
   cumvar_pct <- x$cumvar_explained * 100
 
-  # Determine how many to show
   if (is.null(n_pcs)) {
     n_show <- length(var_pct)
   } else {
@@ -467,7 +544,6 @@ plot_pca_scree <- function(x, n_pcs = NULL) {
   var_pct <- var_pct[seq_len(n_show)]
   cumvar_pct <- cumvar_pct[seq_len(n_show)]
 
-  # Main plot
   plot(seq_along(var_pct), var_pct,
        type = "b", pch = 19, col = rgb(0, 0, 0, 0.5),
        xlab = "Principal Component",
@@ -478,111 +554,36 @@ plot_pca_scree <- function(x, n_pcs = NULL) {
 
   abline(h = 0, col = "gray", lty = 2)
 
-  # Add cumulative variance text ABOVE each point
   text(seq_along(var_pct), var_pct,
        labels = sprintf("%.1f%%", cumvar_pct),
-       pos = 3,  # above
-       cex = 0.7,
-       col = "gray40")
-}
-
-
-#' @keywords internal
-#' @noRd
-plot_pca_scores <- function(x, pcs, color_quo, labels_quo, chull, cex, legend) {
-
-  pc_scores <- x$model$x
-  pc1 <- pc_scores[, pcs[1]]
-  pc2 <- pc_scores[, pcs[2]]
-
-  var1 <- round(x$variance_explained[pcs[1]] * 100, 1)
-  var2 <- round(x$variance_explained[pcs[2]] * 100, 1)
-
-  # Get color values
-  color_vals <- get_plot_variable(x$data, color_quo)
-
-  # Get label values
-  label_vals <- get_plot_variable(x$data, labels_quo)
-
-  # Determine colors
-  if (!is.null(color_vals)) {
-    if (is.factor(color_vals) || is.character(color_vals)) {
-      # Categorical
-      color_vals <- as.factor(color_vals)
-      cols <- rainbow(nlevels(color_vals), alpha = 0.5)[as.integer(color_vals)]
-    } else if (is.numeric(color_vals)) {
-      # Continuous - use color gradient
-      col_ramp <- colorRampPalette(c("blue", "red"))
-      color_indices <- cut(color_vals, breaks = 100, labels = FALSE)
-      cols <- col_ramp(100)[color_indices]
-      cols <- paste0(cols, "80")  # Add transparency
-    } else {
-      cols <- rgb(0, 0, 0, 0.5)
-    }
-  } else {
-    cols <- rgb(0, 0, 0, 0.5)
-  }
-
-  # Create plot
-  plot(pc1, pc2,
-       xlab = sprintf("PC%d (%s%%)", pcs[1], var1),
-       ylab = sprintf("PC%d (%s%%)", pcs[2], var2),
-       main = "PCA Score Plot",
-       type = "n",  # Don't plot points yet
-       asp = 1,
-       las = 1)
-
-  abline(h = 0, v = 0, col = "gray", lty = 2)
-
-  # Draw convex hulls if requested (behind points)
-  if (chull && !is.null(color_vals) &&
-      (is.factor(color_vals) || is.character(color_vals))) {
-    draw_chulls(pc1, pc2, color_vals, rainbow(nlevels(as.factor(color_vals)), alpha = 1))
-  }
-
-  # Now add points
-  points(pc1, pc2, pch = 19, col = cols)
-
-  # Add labels if requested
-  if (!is.null(label_vals)) {
-    text(pc1, pc2, labels = label_vals, cex = cex, pos = 3)
-  }
-
-  # Add legend if requested and we have colors
-  if (legend && !is.null(color_vals)) {
-    add_plot_legend(color_vals, cols, position = "topright")
-  }
+       pos = 3, cex = 0.7, col = "gray40")
 }
 
 
 #' @keywords internal
 #' @noRd
 plot_pca_loadings <- function(x, pcs, labels, cex) {
-
   loadings <- x$model$rotation[, pcs]
 
-  # Create empty plot (no points)
   plot(loadings[, 1], loadings[, 2],
        xlab = sprintf("PC%d loading", pcs[1]),
        ylab = sprintf("PC%d loading", pcs[2]),
        main = "PCA Loading Plot",
-       type = "n",  # No points
-       asp = 1,
-       las = 1)
+       type = "n", asp = 1, las = 1)
 
   abline(h = 0, v = 0, col = "gray", lty = 2)
 
-  # Add arrows from origin (no points at tips)
   arrows(0, 0, loadings[, 1], loadings[, 2],
          length = 0.1, col = rgb(0, 0, 0, 0.5), lwd = 1.5)
 
-  # Add labels if requested (default TRUE)
   if (isTRUE(labels)) {
     text(loadings[, 1], loadings[, 2],
          labels = rownames(loadings),
          cex = cex, pos = 3)
   }
 }
+
+
 
 
 # Plot helpers (shared across methods) ----

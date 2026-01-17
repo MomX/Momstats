@@ -35,9 +35,9 @@ parse_unsupervised_formula <- function(data, formula_quo) {
     formula_expr <- formula_quo
   }
 
-  # If missing/NULL, auto-detect single coe
+  # If missing/NULL, auto-detect single or multiple coe
   if (is.null(formula_expr) || identical(formula_expr, quote(expr = ))) {
-    coe_cols <- get_coe_cols(data)
+    coe_cols <- get_all_coe_cols(data)
     return(list(
       coe_cols = coe_cols,
       covariate_cols = character(0),

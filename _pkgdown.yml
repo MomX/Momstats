@@ -63,6 +63,12 @@ reference:
   desc: "That applies to all stat_*"
   contents:
   - collect
+  - transduce
+
+- title: "Morphospace"
+  desc: "That applies to all stat_*"
+  contents:
+  - starts_with("morphospace")
 
 - title: "Misc"
   desc: "Todo"
@@ -99,3 +105,4 @@ reference:
   desc: "To play with"
   contents:
   - boteft
+  - vitis
