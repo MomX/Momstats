@@ -67,3 +67,58 @@
 #' # lda_result <- stat_lda(boteft, type)
 #'
 "boteft"
+
+#
+# x <- Bacchus::Vitis_ref %>% Momocs::as_df()
+# x %>% fold(VD=A1:D5, .class = c("eft", "coe")) %>% fold(VL=V21:V40, .class = c("eft", "coe")) %>% mutate(VL=map(VL, eft_name)) -> z
+# class(z$VL) <- c("eft", "coe", "list")
+# z <- z %>% mutate(ifp2=ifp %>% map_chr(~.x %>% str_split("_") %>% `[[`(1) %>% `[`(2))) %>%
+#   mutate(accession=ifelse(status=="domesticated", as.character(variety), ifp2))
+# z <- z %>% select(id, accession, status, length, usage=grow_usage, geo_group:VL)
+#
+# retain_these <- c(
+# "Syrah",
+# "Pinot blanc",
+# "Pinot noir",
+# "Merlot",
+# "Grenache",
+# "Cinsaut",
+# "Cabernet-Sauvignon",
+# "Clairette",
+# "Mourvedre",
+# "wPSL13",
+# "wPSLH",
+# "wLagMa1",
+# "wCente3",
+# "wGokce7")
+#
+# z %>% filter(accession %in% retain_these) %>%
+#   group_by(accession) %>%
+#   mutate(pip=1:n()) %>%
+#   ungroup() %>%
+#   select(id, pip, accession, pip, status, length, VD, VL) -> vitis
+# usethis::use_data(vitis, overwrite = TRUE)
+
+
+#' Grapevine pips outlines (two views) with elliptic Fourier transform coefficients
+#'
+#' A dataset containing 410 pip outlines (dorsal and lateral view) that have been preprocessed and
+#' transformed using elliptic Fourier analysis (5 harmonics). This dataset is used for
+#' demonstrating statistical methods in Momstats.
+#'
+#' @format A tibble with 410 rows and 5 variables:
+#' * `id`: for the accession
+#' * `pip`: Numeric identifying pip number
+#' * `accession`: Character 14 names
+#' * `status`: Factor with 2 levels (domesticated/wild)
+#' * `length` : pip length measured before outline normalization
+#' * `VD`: 5 eft harmonics for dorsal view
+#' * `VL`: 5 eft harmonics for lateral view
+#'
+#' @source adapted from Bonhomme, Vincent; Ivorra, Sarah; Figueiral, Isabel; Pastor, Thierry; Terral, Jean-Frédéric; Bouby, Laurent (2021).
+#' Vitis reference collection database (Sci Reports 2021). figshare. Dataset. https://doi.org/10.6084/m9.figshare.14170484.v1
+#' @examples
+#' # View structure
+#' vitis
+#'
+"vitis"
