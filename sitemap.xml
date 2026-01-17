@@ -15,6 +15,10 @@
 <url><loc>https://momx.github.io/Momstats/reference/collect.stat_lm.html</loc></url>
 <url><loc>https://momx.github.io/Momstats/reference/collect.stat_pca.html</loc></url>
 <url><loc>https://momx.github.io/Momstats/reference/index.html</loc></url>
+<url><loc>https://momx.github.io/Momstats/reference/morphospace_axes.html</loc></url>
+<url><loc>https://momx.github.io/Momstats/reference/morphospace_centroids.html</loc></url>
+<url><loc>https://momx.github.io/Momstats/reference/morphospace_grid.html</loc></url>
+<url><loc>https://momx.github.io/Momstats/reference/morphospace_range.html</loc></url>
 <url><loc>https://momx.github.io/Momstats/reference/pipe.html</loc></url>
 <url><loc>https://momx.github.io/Momstats/reference/plot.stat_hclust.html</loc></url>
 <url><loc>https://momx.github.io/Momstats/reference/plot.stat_kmeans.html</loc></url>
@@ -32,5 +36,6 @@
 <url><loc>https://momx.github.io/Momstats/reference/transduce.stat_hclust.html</loc></url>
 <url><loc>https://momx.github.io/Momstats/reference/transduce.stat_kmeans.html</loc></url>
 <url><loc>https://momx.github.io/Momstats/reference/transduce.stat_lm.html</loc></url>
+<url><loc>https://momx.github.io/Momstats/reference/vitis.html</loc></url>
 </urlset>
 

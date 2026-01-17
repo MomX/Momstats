@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Plot PCA results — plot.stat_pca"><meta name="description" content="Visualize PCA results with score plots, scree plots, or loading plots."><meta property="og:description" content="Visualize PCA results with score plots, scree plots, or loading plots."><meta property="og:image" content="https://momx.github.io/Momstats/logo.png"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Plot PCA results — plot.stat_pca"><meta name="description" content="Plot PCA results"><meta property="og:description" content="Plot PCA results"><meta property="og:image" content="https://momx.github.io/Momstats/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -56,7 +56,7 @@
     </div>
 
     <div class="ref-description section level2">
-    <p>Visualize PCA results with score plots, scree plots, or loading plots.</p>
+    <p>Plot PCA results</p>
     </div>
 
     <div class="section level2">
@@ -66,6 +66,8 @@
 <span>  <span class="va">x</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"scores"</span>, <span class="st">"scree"</span>, <span class="st">"loadings"</span><span class="op">)</span>,</span>
 <span>  pcs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  extent <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  morphospace <span class="op">=</span> <span class="st">"grid"</span>,</span>
 <span>  color <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  labels <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  chull <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -85,77 +87,50 @@
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Character. Type of plot:</p><ul><li><p><code>"scores"</code>: PC score plot (default)</p></li>
-<li><p><code>"scree"</code>: Variance explained by each PC</p></li>
-<li><p><code>"loadings"</code>: Loading plot for first two PCs</p></li>
-</ul></dd>
+<dd><p>Character. Type of plot</p></dd>
 
 
 <dt id="arg-pcs">pcs<a class="anchor" aria-label="anchor" href="#arg-pcs"></a></dt>
-<dd><p>Integer vector of length 2. Which PCs to plot for score/loading plots.
-Default is <code>c(1, 2)</code>.</p></dd>
+<dd><p>Integer vector of length 2. Which PCs to plot</p></dd>
+
+
+<dt id="arg-extent">extent<a class="anchor" aria-label="anchor" href="#arg-extent"></a></dt>
+<dd><p>Numeric. Plot extent factor (&lt; 1 = zoom in, &gt; 1 = zoom out)</p></dd>
+
+
+<dt id="arg-morphospace">morphospace<a class="anchor" aria-label="anchor" href="#arg-morphospace"></a></dt>
+<dd><p>Character or FALSE. Morphospace type: "grid", "range", "axes", "centroids", FALSE</p></dd>
 
 
 <dt id="arg-color">color<a class="anchor" aria-label="anchor" href="#arg-color"></a></dt>
-<dd><p>Column name (bare or quoted) for coloring points in score plot.</p></dd>
+<dd><p>Column name for coloring points</p></dd>
 
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
-<dd><p>Column name (bare or quoted) for text labels in score plot.
-For loadings, logical: should variable names be shown? Default <code>TRUE</code>.</p></dd>
+<dd><p>Column name for text labels</p></dd>
 
 
 <dt id="arg-chull">chull<a class="anchor" aria-label="anchor" href="#arg-chull"></a></dt>
-<dd><p>Logical. Draw convex hulls around groups? Only works when <code>color</code>
-is a factor. Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical. Draw convex hulls?</p></dd>
 
 
 <dt id="arg-n-pcs">n_pcs<a class="anchor" aria-label="anchor" href="#arg-n-pcs"></a></dt>
-<dd><p>Integer. For scree plot, how many PCs to show? Default is all.</p></dd>
+<dd><p>Integer. For scree plot</p></dd>
 
 
 <dt id="arg-cex">cex<a class="anchor" aria-label="anchor" href="#arg-cex"></a></dt>
-<dd><p>Numeric. Character expansion for labels. Default is 0.7.</p></dd>
+<dd><p>Numeric. Character expansion</p></dd>
 
 
 <dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>
-<dd><p>Logical. Show legend for colors? Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical. Show legend?</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments (reserved for future use)</p></dd>
+<dd><p>Passed to morphospace functions (n, nrow, ncol, template, lwd, col)</p></dd>
 
 </dl></div>
-    <div class="section level2">
-    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>NULL (invisibly). Draws plot as side effect.</p>
-    </div>
 
-    <div class="section level2">
-    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">pca</span> <span class="op">&lt;-</span> <span class="va">boteft</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="stat_pca.html">stat_pca</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Score plot (default)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pca</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pca</span>, color <span class="op">=</span> <span class="va">type</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pca</span>, labels <span class="op">=</span> <span class="va">type</span>, color <span class="op">=</span> <span class="va">type</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pca</span>, color <span class="op">=</span> <span class="va">type</span>, chull <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Different PCs</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pca</span>, pcs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Scree plot</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pca</span>, type <span class="op">=</span> <span class="st">"scree"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pca</span>, type <span class="op">=</span> <span class="st">"scree"</span>, n_pcs <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>  <span class="co"># First 10 only</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Loading plot</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pca</span>, type <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pca</span>, type <span class="op">=</span> <span class="st">"loadings"</span>, labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
-    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

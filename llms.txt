@@ -46,6 +46,21 @@ That applies to all stat\_\*
 
 - [`collect()`](https://momx.github.io/Momstats/reference/collect.md) :
   Collect results from statistical analyses
+- [`transduce()`](https://momx.github.io/Momstats/reference/transduce.md)
+  : Transduce model positions to coefficients and shapes
+
+## Morphospace
+
+That applies to all stat\_\*
+
+- [`morphospace_axes()`](https://momx.github.io/Momstats/reference/morphospace_axes.md)
+  : Morphospace visualization: shapes along axes
+- [`morphospace_centroids()`](https://momx.github.io/Momstats/reference/morphospace_centroids.md)
+  : Morphospace visualization: group centroids
+- [`morphospace_grid()`](https://momx.github.io/Momstats/reference/morphospace_grid.md)
+  : Morphospace visualization: uniform grid
+- [`morphospace_range()`](https://momx.github.io/Momstats/reference/morphospace_range.md)
+  : Morphospace visualization: data range grid
 
 ## Misc
 
@@ -102,4 +117,7 @@ To play with
 
 - [`boteft`](https://momx.github.io/Momstats/reference/boteft.md) :
   Bottle outlines with elliptic Fourier transform coefficients
+- [`vitis`](https://momx.github.io/Momstats/reference/vitis.md) :
+  Grapevine pips outlines (two views) with elliptic Fourier transform
+  coefficients
 

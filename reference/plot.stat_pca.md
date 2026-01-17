@@ -1,6 +1,6 @@
 # Plot PCA results
 
-Visualize PCA results with score plots, scree plots, or loading plots.
+Plot PCA results
 
 ## Usage
 
@@ -10,6 +10,8 @@ plot(
   x,
   type = c("scores", "scree", "loadings"),
   pcs = c(1, 2),
+  extent = 1,
+  morphospace = "grid",
   color = NULL,
   labels = NULL,
   chull = TRUE,
@@ -28,74 +30,45 @@ plot(
 
 - type:
 
-  Character. Type of plot:
-
-  - `"scores"`: PC score plot (default)
-
-  - `"scree"`: Variance explained by each PC
-
-  - `"loadings"`: Loading plot for first two PCs
+  Character. Type of plot
 
 - pcs:
 
-  Integer vector of length 2. Which PCs to plot for score/loading plots.
-  Default is `c(1, 2)`.
+  Integer vector of length 2. Which PCs to plot
+
+- extent:
+
+  Numeric. Plot extent factor (\< 1 = zoom in, \> 1 = zoom out)
+
+- morphospace:
+
+  Character or FALSE. Morphospace type: "grid", "range", "axes",
+  "centroids", FALSE
 
 - color:
 
-  Column name (bare or quoted) for coloring points in score plot.
+  Column name for coloring points
 
 - labels:
 
-  Column name (bare or quoted) for text labels in score plot. For
-  loadings, logical: should variable names be shown? Default `TRUE`.
+  Column name for text labels
 
 - chull:
 
-  Logical. Draw convex hulls around groups? Only works when `color` is a
-  factor. Default `TRUE`.
+  Logical. Draw convex hulls?
 
 - n_pcs:
 
-  Integer. For scree plot, how many PCs to show? Default is all.
+  Integer. For scree plot
 
 - cex:
 
-  Numeric. Character expansion for labels. Default is 0.7.
+  Numeric. Character expansion
 
 - legend:
 
-  Logical. Show legend for colors? Default `TRUE`.
+  Logical. Show legend?
 
 - ...:
 
-  Additional arguments (reserved for future use)
-
-## Value
-
-NULL (invisibly). Draws plot as side effect.
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-pca <- boteft %>% stat_pca()
-
-# Score plot (default)
-plot(pca)
-plot(pca, color = type)
-plot(pca, labels = type, color = type)
-plot(pca, color = type, chull = TRUE)
-
-# Different PCs
-plot(pca, pcs = c(2, 3))
-
-# Scree plot
-plot(pca, type = "scree")
-plot(pca, type = "scree", n_pcs = 10)  # First 10 only
-
-# Loading plot
-plot(pca, type = "loadings")
-plot(pca, type = "loadings", labels = FALSE)
-} # }
-```
+  Passed to morphospace functions (n, nrow, ncol, template, lwd, col)
