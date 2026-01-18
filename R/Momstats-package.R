@@ -5,7 +5,8 @@
 
 # import section ----
 #' @importFrom grDevices colorRampPalette rainbow rgb
-#' @importFrom graphics abline arrows barplot boxplot legend lines points polygon text
+#' @importFrom graphics abline arrows barplot boxplot
+#' @importFrom graphics legend lines points polygon text title
 #' @importFrom stats predict as.formula coef fitted lm model.matrix
 #' @importFrom stats qqline qqnorm rect.hclust residuals
 #' @importFrom rlang := enquo quo_is_null quo_get_expr is_call as_name f_rhs eval_tidy
