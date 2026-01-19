@@ -110,6 +110,12 @@ to be reorganized
   : Plot LDA results
 - [`plot(`*`<stat_pca>`*`)`](https://momx.github.io/Momstats/reference/plot.stat_pca.md)
   : Plot PCA results
+- [`collect(`*`<stat_meanshape>`*`)`](https://momx.github.io/Momstats/reference/collect.stat_meanshape.md)
+  : Collect mean shapes and add to original data
+- [`plot(`*`<stat_meanshape>`*`)`](https://momx.github.io/Momstats/reference/plot.stat_meanshape.md)
+  : Plot mean shapes
+- [`stat_meanshape()`](https://momx.github.io/Momstats/reference/stat_meanshape.md)
+  : Calculate mean (or aggregated) shapes
 
 ## Data
 
